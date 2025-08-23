@@ -231,9 +231,8 @@ async def get_service_status() -> dict[str, any]:
     Returns:
         Dictionnaire du statut de chaque service et provider
     """
-    # Statut des services existants
-    legacy_config = get_legacy_ai_config()
-    legacy_status = {
+    # Nouveau statut basé sur les providers modernes
+    service_status = {
         "analysis_service": False,
         "decision_service": False,
         "sentiment_service": False,
@@ -242,15 +241,41 @@ async def get_service_status() -> dict[str, any]:
         "legacy_provider": False
     }
     
-    if legacy_config and legacy_config._initialized:
-        legacy_status = {
-            "analysis_service": legacy_config.analysis_service is not None,
-            "decision_service": legacy_config.decision_service is not None,
-            "sentiment_service": legacy_config.sentiment_service is not None,
-            "strategy_service": legacy_config.strategy_service is not None,
-            "memory_manager": legacy_config.memory_manager is not None,
-            "legacy_provider": legacy_config.provider is not None
-        }
+    # Vérifier la disponibilité des services via les nouveaux providers
+    try:
+        factory = await get_ai_factory()
+        provider_health = factory.get_provider_health_status()
+        
+        # Si au moins un provider est disponible, les services le sont aussi
+        has_available_provider = any(
+            status.get("available", False)
+            for status in provider_health.values()
+        )
+        
+        if has_available_provider:
+            service_status = {
+                "analysis_service": True,
+                "decision_service": True,
+                "sentiment_service": True,
+                "strategy_service": True,
+                "memory_manager": True,
+                "legacy_provider": True
+            }
+    except Exception:
+        # Fallback vers legacy config si nécessaire
+        try:
+            legacy_config = get_legacy_ai_config()
+            if legacy_config and hasattr(legacy_config, '_initialized') and legacy_config._initialized:
+                service_status = {
+                    "analysis_service": legacy_config.analysis_service is not None,
+                    "decision_service": legacy_config.decision_service is not None,
+                    "sentiment_service": legacy_config.sentiment_service is not None,
+                    "strategy_service": legacy_config.strategy_service is not None,
+                    "memory_manager": legacy_config.memory_manager is not None,
+                    "legacy_provider": legacy_config.provider is not None
+                }
+        except Exception:
+            pass  # Garder les valeurs par défaut
     
     # Statut des nouveaux providers
     provider_status = {}
@@ -272,7 +297,7 @@ async def get_service_status() -> dict[str, any]:
         pass
     
     return {
-        **legacy_status,
+        "services": service_status,
         "providers": provider_status,
         "discovery_service": discovery_status,
         "factory_initialized": provider_status != {}

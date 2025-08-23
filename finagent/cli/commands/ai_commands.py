@@ -75,6 +75,43 @@ def models():
 
 
 @ai_group.command()
+def test():
+    """Teste la connectivité avec les providers IA."""
+    try:
+        console.print("🔗 Test de connectivité en cours...", style="blue")
+        
+        # Test simple de connexion
+        status_data = asyncio.run(get_service_status())
+        
+        if "providers" in status_data:
+            table = Table(title="🔍 Test de Connectivité")
+            table.add_column("Provider", style="cyan")
+            table.add_column("Statut", style="bold")
+            table.add_column("Temps de réponse", style="yellow")
+            
+            for provider, info in status_data["providers"].items():
+                available = info.get("available", False)
+                status_style = "green" if available else "red"
+                status_text = "✅ Connecté" if available else "❌ Déconnecté"
+                
+                response_time = info.get("response_time_ms")
+                response_text = f"{response_time:.1f}ms" if response_time else "N/A"
+                
+                table.add_row(
+                    provider.title(),
+                    f"[{status_style}]{status_text}[/{status_style}]",
+                    response_text
+                )
+            
+            console.print(table)
+        else:
+            console.print("[red]❌ Aucun provider disponible[/red]")
+            
+    except Exception as e:
+        console.print(f"[red]❌ Erreur lors du test: {e}[/red]")
+
+
+@ai_group.command()
 def config():
     """Affiche la configuration IA actuelle."""
     try:

@@ -470,3 +470,62 @@ class AnalysisFormatter(BaseFormatter):
         style = "green" if avg_quality >= 0.8 else "yellow" if avg_quality >= 0.6 else "red"
         
         return self.create_panel(content, title="Métriques de qualité", style=style)
+    
+    def format_technical_indicators(self, indicators_data: Dict[str, Any], **kwargs) -> Table:
+        """
+        Formate les indicateurs techniques.
+        
+        Args:
+            indicators_data: Données d'indicateurs techniques
+            **kwargs: Options de formatage
+            
+        Returns:
+            Table avec les indicateurs
+        """
+        symbol = indicators_data.get("symbol", "N/A")
+        indicators = indicators_data.get("indicators", {})
+        
+        # Création du tableau
+        table = self.create_table(
+            title=f"📊 Indicateurs Techniques - {self.style_symbol(symbol)}",
+            show_lines=True
+        )
+        
+        table.add_column("Indicateur", style="cyan", no_wrap=True)
+        table.add_column("Valeur", justify="right")
+        table.add_column("Signal", justify="center")
+        table.add_column("Description", no_wrap=False)
+        
+        # Formatage des indicateurs courants
+        for name, data in indicators.items():
+            if isinstance(data, dict):
+                value = data.get("value", "N/A")
+                signal = data.get("signal", "NEUTRE")
+                description = data.get("description", "")
+            else:
+                value = data
+                signal = "NEUTRE"
+                description = ""
+            
+            # Style du signal
+            if signal.upper() in ["ACHAT", "BUY"]:
+                signal_styled = Text("🟢 ACHAT", style="green bold")
+            elif signal.upper() in ["VENTE", "SELL"]:
+                signal_styled = Text("🔴 VENTE", style="red bold")
+            else:
+                signal_styled = Text("🟡 NEUTRE", style="yellow")
+            
+            # Formatage de la valeur
+            if isinstance(value, (int, float)):
+                value_str = f"{value:.4f}"
+            else:
+                value_str = str(value)
+            
+            table.add_row(
+                name.upper(),
+                value_str,
+                signal_styled,
+                self.truncate_text(description, 40) if description else "─"
+            )
+        
+        return table

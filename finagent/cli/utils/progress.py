@@ -475,8 +475,7 @@ def create_status_panel(title: str,
     return Panel(
         content,
         title=title,
-        border_style=style,
-        title_justify="left"
+        border_style=style
     )
 
 

@@ -158,8 +158,7 @@ class BaseFormatter(ABC):
             content,
             title=title,
             subtitle=subtitle,
-            border_style=style,
-            title_justify="left"
+            border_style=style
         )
     
     # === Méthodes utilitaires de formatage ===
@@ -306,8 +305,7 @@ class BaseFormatter(ABC):
         
         panel = Panel(
             Align.center(header_text),
-            style="blue",
-            title_justify="center"
+            style="blue"
         )
         self.console.print(panel)
         self.console.print()

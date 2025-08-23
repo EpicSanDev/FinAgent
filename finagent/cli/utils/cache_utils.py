@@ -554,8 +554,7 @@ def create_cache_commands_panel() -> Panel:
     return Panel(
         content,
         title="💡 Aide - Gestion du Cache",
-        border_style="blue",
-        title_justify="left"
+        border_style="blue"
     )
 
 
