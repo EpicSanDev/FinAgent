@@ -1,0 +1,247 @@
+# Template de stratégie momentum de base
+# Ce template démontre une stratégie simple basée sur les moyennes mobiles et le momentum
+
+strategy:
+  name: "Basic Momentum Strategy"
+  description: "Stratégie momentum utilisant les moyennes mobiles et le RSI pour identifier les tendances"
+  type: "technical"
+  version: "1.0.0"
+  author: "FinAgent Template"
+  created_date: "2024-01-01"
+
+# Configuration des instruments tradés
+instruments:
+  - symbol: "AAPL"
+    name: "Apple Inc."
+    sector: "Technology"
+    weight: 0.25
+  - symbol: "GOOGL"
+    name: "Alphabet Inc."
+    sector: "Technology"
+    weight: 0.25
+  - symbol: "MSFT"
+    name: "Microsoft Corporation"
+    sector: "Technology"
+    weight: 0.25
+  - symbol: "AMZN"
+    name: "Amazon.com Inc."
+    sector: "Consumer Discretionary"
+    weight: 0.25
+
+# Configuration de l'analyse
+analysis:
+  technical:
+    enabled: true
+    weight: 0.7
+  fundamental:
+    enabled: false
+    weight: 0.0
+  sentiment:
+    enabled: true
+    weight: 0.3
+
+# Règles de trading
+rules:
+  buy_rules:
+    - rule_id: "momentum_buy_signal"
+      description: "Signal d'achat basé sur le momentum"
+      conditions:
+        - momentum_bullish
+        - rsi_favorable
+        - volume_confirmation
+      logic: "AND"
+      confidence_threshold: 0.6
+      
+  sell_rules:
+    - rule_id: "momentum_sell_signal"
+      description: "Signal de vente basé sur le retournement"
+      conditions:
+        - momentum_bearish
+        - rsi_overbought
+      logic: "OR"
+      confidence_threshold: 0.5
+
+# Conditions d'achat
+buy_conditions:
+  # Condition principale : croissance du momentum
+  momentum_bullish:
+    indicator: "sma_crossover"
+    parameters:
+      fast_period: 20
+      slow_period: 50
+    operator: ">"
+    threshold: 0
+    confidence_weight: 0.4
+    
+  # Condition de support : RSI favorable
+  rsi_favorable:
+    indicator: "rsi"
+    parameters:
+      period: 14
+    operator: ">"
+    threshold: 30
+    operator_secondary: "<"
+    threshold_secondary: 70
+    confidence_weight: 0.3
+    
+  # Condition de volume : volume élevé
+  volume_confirmation:
+    indicator: "volume_ratio"
+    parameters:
+      period: 20
+    operator: ">"
+    threshold: 1.2
+    confidence_weight: 0.3
+
+# Conditions de vente
+sell_conditions:
+  # Condition principale : retournement du momentum
+  momentum_bearish:
+    indicator: "sma_crossover"
+    parameters:
+      fast_period: 20
+      slow_period: 50
+    operator: "<"
+    threshold: 0
+    confidence_weight: 0.5
+    
+  # Condition de protection : RSI en surachat
+  rsi_overbought:
+    indicator: "rsi"
+    parameters:
+      period: 14
+    operator: ">"
+    threshold: 70
+    confidence_weight: 0.3
+    
+  # Condition de protection : baisse de volume
+  volume_decline:
+    indicator: "volume_ratio"
+    parameters:
+      period: 20
+    operator: "<"
+    threshold: 0.8
+    confidence_weight: 0.2
+
+# Gestion des risques
+risk_management:
+  stop_loss:
+    type: "percentage"
+    value: 0.05  # 5% de stop-loss
+    
+  take_profit:
+    type: "percentage"
+    value: 0.15  # 15% de take-profit
+    
+  position_sizing:
+    type: "fixed_percentage"
+    value: 0.05  # 5% du portefeuille par position
+    
+  max_drawdown:
+    value: 0.10  # 10% de drawdown maximum
+    
+  risk_level: "medium"
+
+# Paramètres d'exécution
+execution:
+  frequency: "daily"  # Évaluation quotidienne
+  market_hours_only: true
+  minimum_confidence: 0.6  # Confiance minimum de 60%
+  
+  # Filtres d'exécution
+  filters:
+    min_volume: 1000000  # Volume minimum de 1M
+    max_spread: 0.02     # Spread maximum de 2%
+    min_price: 10.0      # Prix minimum de 10$
+
+# Configuration des données
+data_requirements:
+  timeframe: "1d"  # Données journalières
+  history_days: 100  # 100 jours d'historique
+  
+  # Indicateurs requis
+  indicators:
+    - "sma"
+    - "rsi"
+    - "volume"
+    - "price"
+  
+  # Sources de données
+  data_sources:
+    primary: "market_data_provider"
+    backup: "secondary_provider"
+
+# Paramètres de backtesting
+backtesting:
+  start_date: "2023-01-01"
+  end_date: "2024-01-01"
+  initial_capital: 100000
+  benchmark: "SPY"
+  
+  # Métriques à calculer
+  metrics:
+    - "total_return"
+    - "sharpe_ratio"
+    - "max_drawdown"
+    - "win_rate"
+    - "profit_factor"
+
+# Métadonnées et tags
+metadata:
+  tags:
+    - "momentum"
+    - "trend_following"
+    - "technical_analysis"
+    - "medium_risk"
+  
+  # Paramètres de performance attendue
+  expected_performance:
+    annual_return: 0.12  # 12% annuel attendu
+    volatility: 0.18     # 18% de volatilité
+    max_drawdown: 0.10   # 10% de drawdown max
+    
+  # Conditions de marché favorables
+  market_conditions:
+    bull_market_performance: 1.2  # 20% de sur-performance en marché haussier
+    bear_market_performance: 0.8  # 20% de sous-performance en marché baissier
+    sideways_market_performance: 0.9  # 10% de sous-performance en marché latéral
+
+# Configuration des alertes
+alerts:
+  # Alertes de performance
+  performance_alerts:
+    drawdown_warning: 0.07  # Alerte à 7% de drawdown
+    loss_limit: 0.10        # Arrêt à 10% de perte
+    
+  # Alertes techniques
+  technical_alerts:
+    rsi_extreme: [20, 80]   # RSI extrême
+    volume_spike: 3.0       # Volume 3x la moyenne
+    
+  # Notifications
+  notifications:
+    email: true
+    sms: false
+    webhook: "https://api.finagent.com/webhooks/strategy-alerts"
+
+# Paramètres avancés
+advanced:
+  # Gestion adaptative
+  adaptive_parameters:
+    enabled: true
+    learning_period: 30  # Période d'apprentissage de 30 jours
+    adaptation_rate: 0.1  # Taux d'adaptation de 10%
+    
+  # Optimisation
+  optimization:
+    enabled: false
+    method: "genetic_algorithm"
+    population_size: 50
+    generations: 100
+    
+  # Machine Learning
+  ml_features:
+    enabled: false
+    feature_engineering: true
+    model_type: "random_forest"
+    retrain_frequency: "weekly"

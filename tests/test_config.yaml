@@ -1,0 +1,148 @@
+# Configuration pour les tests FinAgent
+# Ce fichier contient les paramètres spécifiques aux tests
+
+# Configuration générale
+test_mode: true
+debug: false
+log_level: "ERROR"
+
+# Configuration des providers (valeurs de test)
+providers:
+  openbb:
+    api_key: "test_openbb_key_12345"
+    base_url: "https://api.test.openbb.co"
+    timeout: 30
+    rate_limit:
+      requests_per_minute: 100
+      burst_limit: 10
+    
+  claude:
+    api_key: "test_claude_key_67890"
+    base_url: "https://api.test.openrouter.ai"
+    model: "claude-3-sonnet-20240229"
+    timeout: 60
+    rate_limit:
+      requests_per_minute: 50
+      tokens_per_minute: 100000
+
+# Configuration de la base de données de test
+database:
+  url: "sqlite:///:memory:"
+  echo: false
+  pool_size: 1
+  max_overflow: 0
+
+# Configuration du cache de test
+cache:
+  backend: "memory"
+  default_timeout: 300
+  key_prefix: "finagent_test"
+
+# Configuration des tests de performance
+performance:
+  benchmarks:
+    timeout: 30
+    min_rounds: 5
+    max_time: 10
+  
+  memory:
+    max_memory_mb: 500
+    track_allocations: true
+  
+  concurrent:
+    max_workers: 4
+    default_concurrency: 10
+
+# Configuration des tests d'intégration
+integration:
+  skip_real_apis: true
+  api_timeout: 10
+  retry_attempts: 2
+  
+  # Symboles de test pour les APIs
+  test_symbols:
+    - "AAPL"
+    - "MSFT" 
+    - "GOOGL"
+    - "TSLA"
+    - "NVDA"
+
+# Configuration des mocks
+mocks:
+  # Données de marché simulées
+  market_data:
+    default_price: 150.00
+    default_volume: 1000000
+    price_volatility: 0.02
+    
+  # Réponses IA simulées
+  ai_responses:
+    analysis_delay: 0.5
+    decision_delay: 1.0
+    confidence_range: [0.6, 0.9]
+    
+  # Simulations d'erreurs
+  error_simulation:
+    api_failure_rate: 0.05
+    network_timeout_rate: 0.02
+    rate_limit_simulation: false
+
+# Configuration de sécurité pour tests
+security:
+  disable_ssl_verify: true
+  allow_test_tokens: true
+  mask_sensitive_data: true
+
+# Configuration des fixtures de données
+fixtures:
+  # Répertoires de données de test
+  data_dir: "tests/fixtures/data"
+  strategies_dir: "tests/fixtures/strategies"
+  portfolios_dir: "tests/fixtures/portfolios"
+  
+  # Génération de données aléatoires
+  random_seed: 42
+  faker_locale: "en_US"
+
+# Configuration des rapports de tests
+reporting:
+  coverage:
+    min_coverage: 85
+    fail_under: 80
+    include_branches: true
+    
+  junit:
+    enabled: true
+    output_dir: "test-results"
+    
+  html:
+    enabled: true
+    output_dir: "htmlcov"
+
+# Configuration CLI pour tests
+cli:
+  timeout: 30
+  capture_output: true
+  use_color: false
+  
+# Timeouts spécifiques par type de test
+timeouts:
+  unit: 5
+  integration: 30
+  performance: 60
+  security: 15
+  robustness: 45
+
+# Variables d'environnement pour tests
+environment:
+  FINAGENT_TEST_MODE: "true"
+  FINAGENT_LOG_LEVEL: "ERROR"
+  FINAGENT_DISABLE_TELEMETRY: "true"
+  FINAGENT_CACHE_DISABLED: "false"
+  PYTHONPATH: "."
+
+# Configuration pour tests parallèles
+parallel:
+  enabled: false
+  workers: "auto"
+  distribute: "loadscope"

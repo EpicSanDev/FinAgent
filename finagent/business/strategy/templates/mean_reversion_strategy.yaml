@@ -1,0 +1,335 @@
+# Template de stratégie de retour à la moyenne
+# Cette stratégie exploite les déviations temporaires par rapport à la moyenne
+
+strategy:
+  name: "Mean Reversion Strategy"
+  description: "Stratégie de retour à la moyenne utilisant les bandes de Bollinger et le Z-Score"
+  type: "technical"
+  version: "1.0.0"
+  author: "FinAgent Template"
+  created_date: "2024-01-01"
+
+# Configuration des instruments - Actions défensives pour mean reversion
+instruments:
+  - symbol: "JNJ"
+    name: "Johnson & Johnson"
+    sector: "Healthcare"
+    weight: 0.20
+  - symbol: "PG"
+    name: "Procter & Gamble"
+    sector: "Consumer Staples"
+    weight: 0.20
+  - symbol: "KO"
+    name: "Coca-Cola"
+    sector: "Consumer Staples"
+    weight: 0.20
+  - symbol: "PFE"
+    name: "Pfizer Inc."
+    sector: "Healthcare"
+    weight: 0.20
+  - symbol: "WMT"
+    name: "Walmart Inc."
+    sector: "Consumer Staples"
+    weight: 0.20
+
+# Conditions d'achat - Prix sous-évalué par rapport à la moyenne
+buy_conditions:
+  # Condition principale : prix en zone de survente
+  bollinger_oversold:
+    indicator: "bollinger_position"
+    parameters:
+      period: 20
+      std_dev: 2.0
+    operator: "<"
+    threshold: 0.2  # Prix dans les 20% inférieurs des bandes
+    confidence_weight: 0.4
+    
+  # Condition de support : Z-Score négatif
+  zscore_negative:
+    indicator: "zscore"
+    parameters:
+      period: 20
+    operator: "<"
+    threshold: -1.5  # Z-Score inférieur à -1.5
+    confidence_weight: 0.3
+    
+  # Condition de confirmation : RSI en survente
+  rsi_oversold:
+    indicator: "rsi"
+    parameters:
+      period: 14
+    operator: "<"
+    threshold: 30
+    confidence_weight: 0.2
+    
+  # Condition de qualité : volatilité modérée
+  volatility_normal:
+    indicator: "volatility"
+    parameters:
+      period: 20
+    operator: "<"
+    threshold: 0.04  # Volatilité quotidienne < 4%
+    confidence_weight: 0.1
+
+# Conditions de vente - Retour vers la moyenne
+sell_conditions:
+  # Condition principale : retour vers la moyenne
+  bollinger_reversion:
+    indicator: "bollinger_position"
+    parameters:
+      period: 20
+      std_dev: 2.0
+    operator: ">"
+    threshold: 0.5  # Prix au-dessus de la moyenne
+    confidence_weight: 0.4
+    
+  # Condition de profit : Z-Score positif
+  zscore_positive:
+    indicator: "zscore"
+    parameters:
+      period: 20
+    operator: ">"
+    threshold: 1.0  # Z-Score supérieur à 1.0
+    confidence_weight: 0.3
+    
+  # Condition de sécurité : RSI neutre/surachat
+  rsi_neutral_high:
+    indicator: "rsi"
+    parameters:
+      period: 14
+    operator: ">"
+    threshold: 50
+    confidence_weight: 0.2
+    
+  # Condition de protection : volatilité excessive
+  volatility_spike:
+    indicator: "volatility"
+    parameters:
+      period: 20
+    operator: ">"
+    threshold: 0.08  # Volatilité > 8%
+    confidence_weight: 0.1
+
+# Section d'analyse obligatoire
+analysis:
+  indicators:
+    bollinger_bands:
+      period: 20
+      std_dev: 2.0
+    zscore:
+      period: 20
+    rsi:
+      period: 14
+    volatility:
+      period: 20
+  timeframe: "1h"
+  lookback_period: 60
+
+# Règles obligatoires
+rules:
+  entry:
+    - condition: "bollinger_oversold AND zscore_negative"
+      action: "buy"
+      confidence: 0.7
+  exit:
+    - condition: "bollinger_reversion OR zscore_positive"
+      action: "sell"
+      confidence: 0.6
+
+# Gestion des risques - Conservative pour mean reversion
+risk_management:
+  stop_loss:
+    type: "percentage"
+    value: 0.03  # 3% de stop-loss serré
+    
+  take_profit:
+    type: "percentage"
+    value: 0.08  # 8% de take-profit modéré
+    
+  position_sizing:
+    type: "volatility_adjusted"
+    target_volatility: 0.02  # 2% de volatilité cible par position
+    max_position_size: 0.08  # 8% maximum du portefeuille
+    
+  max_drawdown:
+    value: 0.06  # 6% de drawdown maximum
+    
+  risk_level: "low"
+
+# Paramètres d'exécution - Plus fréquent pour capturer les reversions
+execution:
+  frequency: "intraday"  # Évaluation intraday
+  evaluation_times: ["09:30", "12:00", "15:00"]  # 3 fois par jour
+  market_hours_only: true
+  minimum_confidence: 0.7  # Confiance minimum de 70%
+  
+  # Filtres d'exécution strictes
+  filters:
+    min_volume: 500000    # Volume minimum de 500K
+    max_spread: 0.01      # Spread maximum de 1%
+    min_price: 20.0       # Prix minimum de 20$
+    max_price: 500.0      # Prix maximum de 500$
+
+# Configuration des données
+data_requirements:
+  timeframe: "1h"  # Données horaires pour réactivité
+  history_days: 60  # 60 jours d'historique suffisants
+  
+  # Indicateurs requis
+  indicators:
+    - "bollinger_bands"
+    - "zscore"
+    - "rsi"
+    - "volatility"
+    - "sma"
+    - "volume"
+  
+  # Sources de données haute fréquence
+  data_sources:
+    primary: "real_time_provider"
+    backup: "market_data_provider"
+
+# Paramètres de backtesting
+backtesting:
+  start_date: "2023-01-01"
+  end_date: "2024-01-01"
+  initial_capital: 100000
+  benchmark: "SPY"
+  
+  # Coûts de transaction importants pour mean reversion
+  transaction_costs:
+    commission: 0.005  # 0.5% par transaction
+    slippage: 0.001    # 0.1% de slippage
+    
+  # Métriques spécifiques au mean reversion
+  metrics:
+    - "total_return"
+    - "sharpe_ratio"
+    - "max_drawdown"
+    - "win_rate"
+    - "average_holding_period"
+    - "profit_factor"
+    - "calmar_ratio"
+
+# Métadonnées et tags
+metadata:
+  tags:
+    - "mean_reversion"
+    - "statistical_arbitrage"
+    - "low_risk"
+    - "defensive"
+    - "short_term"
+  
+  # Paramètres de performance conservateurs
+  expected_performance:
+    annual_return: 0.08   # 8% annuel attendu
+    volatility: 0.12      # 12% de volatilité
+    max_drawdown: 0.06    # 6% de drawdown max
+    sharpe_ratio: 0.8     # Ratio de Sharpe attendu
+    
+  # Sensibilité aux conditions de marché
+  market_conditions:
+    bull_market_performance: 0.85   # Sous-performance en marché haussier
+    bear_market_performance: 1.15   # Sur-performance en marché baissier
+    sideways_market_performance: 1.25  # Excellente performance en marché latéral
+    high_volatility_performance: 1.3   # Bonne performance en haute volatilité
+
+# Configuration des alertes
+alerts:
+  # Alertes de performance
+  performance_alerts:
+    drawdown_warning: 0.04  # Alerte à 4% de drawdown
+    loss_limit: 0.06        # Arrêt à 6% de perte
+    
+  # Alertes spécifiques au mean reversion
+  technical_alerts:
+    extreme_zscore: [-2.5, 2.5]  # Z-Score extrême
+    bollinger_breakout: true       # Cassure des bandes de Bollinger
+    volatility_regime_change: 0.10 # Changement de régime de volatilité
+    
+  # Alertes de qualité des données
+  data_quality_alerts:
+    missing_data_threshold: 0.05   # 5% de données manquantes max
+    stale_data_minutes: 15         # Données obsolètes après 15 min
+    
+  # Notifications
+  notifications:
+    email: true
+    sms: true  # SMS pour stratégie plus réactive
+    webhook: "https://api.finagent.com/webhooks/mean-reversion-alerts"
+
+# Paramètres avancés
+advanced:
+  # Gestion adaptative des seuils
+  adaptive_parameters:
+    enabled: true
+    learning_period: 20   # Période d'apprentissage courte
+    adaptation_rate: 0.15 # Taux d'adaptation plus élevé
+    parameters_to_adapt:
+      - "bollinger_threshold"
+      - "zscore_threshold"
+      - "rsi_levels"
+    
+  # Régimes de marché
+  market_regime_detection:
+    enabled: true
+    lookback_period: 30
+    regime_indicators:
+      - "vix"
+      - "market_breadth"
+      - "sector_rotation"
+    
+  # Filtres de qualité avancés
+  quality_filters:
+    min_trading_sessions: 5     # Minimum 5 sessions de trading
+    min_price_stability: 0.02   # Stabilité de prix minimum
+    correlation_filter: 0.8     # Éviter les corrélations > 80%
+    
+  # Optimisation continue
+  optimization:
+    enabled: true
+    method: "bayesian_optimization"
+    optimization_frequency: "weekly"
+    parameters_to_optimize:
+      - "bollinger_period"
+      - "zscore_period"
+      - "confidence_thresholds"
+    
+  # Modèles prédictifs
+  ml_features:
+    enabled: true
+    feature_engineering: true
+    features:
+      - "price_momentum"
+      - "volume_profile"
+      - "volatility_clustering"
+      - "cross_sectional_ranking"
+    model_type: "gradient_boosting"
+    retrain_frequency: "daily"
+    
+  # Gestion des coûts de transaction
+  transaction_cost_optimization:
+    enabled: true
+    min_profit_threshold: 0.015  # Profit minimum de 1.5%
+    batch_execution: true        # Exécution par lots
+    optimal_timing: true         # Timing optimal d'exécution
+
+# Configuration du paper trading
+paper_trading:
+  enabled: true
+  duration_days: 30
+  initial_capital: 10000
+  
+  # Simulation réaliste
+  realistic_simulation:
+    market_impact: true
+    bid_ask_spread: true
+    partial_fills: true
+    execution_delay: true
+    
+  # Métriques de validation
+  validation_metrics:
+    min_sharpe_ratio: 0.5
+    max_drawdown: 0.08
+    min_win_rate: 0.55
+    min_profit_factor: 1.2

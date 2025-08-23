@@ -1,0 +1,413 @@
+# Template de stratégie de breakout
+# Cette stratégie exploite les cassures de niveaux de résistance/support
+
+strategy:
+  name: "Breakout Strategy"
+  description: "Stratégie de breakout exploitant les cassures de résistances avec confirmation de volume"
+  type: "technical"
+  version: "1.0.0"
+  author: "FinAgent Template"
+  created_date: "2024-01-01"
+
+# Configuration des instruments - Actions volatiles pour breakouts
+instruments:
+  - symbol: "TSLA"
+    name: "Tesla Inc."
+    sector: "Consumer Discretionary"
+    weight: 0.20
+  - symbol: "NVDA"
+    name: "NVIDIA Corporation"
+    sector: "Technology"
+    weight: 0.20
+  - symbol: "AMD"
+    name: "Advanced Micro Devices"
+    sector: "Technology"
+    weight: 0.20
+  - symbol: "NFLX"
+    name: "Netflix Inc."
+    sector: "Communication Services"
+    weight: 0.20
+  - symbol: "CRM"
+    name: "Salesforce Inc."
+    sector: "Technology"
+    weight: 0.20
+
+# Conditions d'achat - Breakout haussier
+buy_conditions:
+  # Condition principale : cassure de résistance
+  resistance_breakout:
+    indicator: "resistance_level"
+    parameters:
+      lookback_period: 20
+      min_touches: 2
+    operator: ">"
+    threshold: 1.005  # Cassure de 0.5% au-dessus de la résistance
+    confidence_weight: 0.4
+    
+  # Condition de confirmation : volume élevé
+  volume_breakout:
+    indicator: "volume_ratio"
+    parameters:
+      period: 20
+    operator: ">"
+    threshold: 1.5  # Volume 50% supérieur à la moyenne
+    confidence_weight: 0.25
+    
+  # Condition de momentum : momentum positif
+  momentum_confirmation:
+    indicator: "momentum"
+    parameters:
+      period: 10
+    operator: ">"
+    threshold: 0.02  # Momentum de 2%
+    confidence_weight: 0.20
+    
+  # Condition de tendance : tendance haussière
+  trend_bullish:
+    indicator: "ema_slope"
+    parameters:
+      period: 20
+    operator: ">"
+    threshold: 0.001  # Pente EMA positive
+    confidence_weight: 0.15
+
+# Conditions de vente - Prise de profit ou retournement
+sell_conditions:
+  # Condition de profit : objectif atteint
+  profit_target:
+    indicator: "profit_percentage"
+    parameters:
+      entry_price: "dynamic"
+    operator: ">"
+    threshold: 0.12  # 12% de profit
+    confidence_weight: 0.3
+    
+  # Condition de protection : retour vers le breakout
+  breakout_failure:
+    indicator: "resistance_level"
+    parameters:
+      lookback_period: 20
+      min_touches: 2
+    operator: "<"
+    threshold: 0.98  # Retour 2% sous la résistance cassée
+    confidence_weight: 0.25
+    
+  # Condition de momentum : momentum négatif
+  momentum_reversal:
+    indicator: "momentum"
+    parameters:
+      period: 5
+    operator: "<"
+    threshold: -0.015  # Momentum négatif de -1.5%
+    confidence_weight: 0.25
+    
+  # Condition de volume : volume faible
+  volume_decline:
+    indicator: "volume_ratio"
+    parameters:
+      period: 10
+    operator: "<"
+    threshold: 0.7  # Volume 30% sous la moyenne
+    confidence_weight: 0.20
+
+# Section d'analyse obligatoire
+analysis:
+  indicators:
+    resistance_level:
+      lookback_period: 20
+      min_touches: 2
+    volume_ratio:
+      period: 20
+    momentum:
+      period: 10
+    ema_slope:
+      period: 20
+  timeframe: "5m"
+  lookback_period: 90
+
+# Règles obligatoires
+rules:
+  entry:
+    - condition: "resistance_breakout AND volume_breakout"
+      action: "buy"
+      confidence: 0.65
+  exit:
+    - condition: "profit_target OR breakout_failure"
+      action: "sell"
+      confidence: 0.55
+
+# Gestion des risques - Agressive pour breakouts
+risk_management:
+  stop_loss:
+    type: "trailing"
+    initial_value: 0.08  # 8% de stop-loss initial
+    trailing_percentage: 0.03  # Trail de 3%
+    
+  take_profit:
+    type: "scaled"  # Prise de profit échelonnée
+    levels:
+      - percentage: 0.08
+        quantity_ratio: 0.33  # 1/3 à 8%
+      - percentage: 0.15
+        quantity_ratio: 0.33  # 1/3 à 15%
+      - percentage: 0.25
+        quantity_ratio: 0.34  # Reste à 25%
+    
+  position_sizing:
+    type: "volatility_adjusted"
+    target_volatility: 0.04  # 4% de volatilité cible
+    max_position_size: 0.12  # 12% maximum du portefeuille
+    
+  max_drawdown:
+    value: 0.15  # 15% de drawdown maximum
+    
+  risk_level: "high"
+
+# Paramètres d'exécution - Réactif pour capturer les breakouts
+execution:
+  frequency: "real_time"  # Surveillance en temps réel
+  trigger_conditions:
+    - "price_alert"
+    - "volume_spike"
+    - "resistance_approach"
+  market_hours_only: true
+  minimum_confidence: 0.65  # Confiance minimum de 65%
+  
+  # Filtres d'exécution pour breakouts
+  filters:
+    min_volume: 2000000   # Volume minimum de 2M
+    max_spread: 0.015     # Spread maximum de 1.5%
+    min_price: 15.0       # Prix minimum de 15$
+    volatility_min: 0.02  # Volatilité minimum de 2%
+    volatility_max: 0.15  # Volatilité maximum de 15%
+
+# Configuration des données
+data_requirements:
+  timeframe: "5m"  # Données 5 minutes pour réactivité
+  history_days: 90  # 90 jours pour identifier les niveaux
+  
+  # Indicateurs requis pour breakouts
+  indicators:
+    - "support_resistance"
+    - "volume"
+    - "momentum"
+    - "ema"
+    - "atr"
+    - "price_channels"
+    - "pivot_points"
+  
+  # Sources de données en temps réel
+  data_sources:
+    primary: "level2_data_provider"
+    backup: "real_time_provider"
+    fundamental: "earnings_calendar"
+
+# Paramètres de backtesting
+backtesting:
+  start_date: "2023-01-01"
+  end_date: "2024-01-01"
+  initial_capital: 100000
+  benchmark: "QQQ"  # Benchmark tech pour ces actions
+  
+  # Coûts réalistes pour trading actif
+  transaction_costs:
+    commission: 0.003  # 0.3% par transaction
+    slippage: 0.002    # 0.2% de slippage sur breakouts
+    market_impact: 0.001  # 0.1% d'impact marché
+    
+  # Métriques spécifiques aux breakouts
+  metrics:
+    - "total_return"
+    - "sharpe_ratio"
+    - "sortino_ratio"
+    - "max_drawdown"
+    - "win_rate"
+    - "average_win_loss_ratio"
+    - "profit_factor"
+    - "recovery_factor"
+
+# Métadonnées et tags
+metadata:
+  tags:
+    - "breakout"
+    - "momentum"
+    - "high_frequency"
+    - "high_risk"
+    - "technical_analysis"
+    - "trend_following"
+  
+  # Paramètres de performance agressifs
+  expected_performance:
+    annual_return: 0.20   # 20% annuel attendu
+    volatility: 0.25      # 25% de volatilité
+    max_drawdown: 0.15    # 15% de drawdown max
+    sharpe_ratio: 0.9     # Ratio de Sharpe attendu
+    win_rate: 0.45        # 45% de trades gagnants
+    
+  # Performance selon les conditions de marché
+  market_conditions:
+    bull_market_performance: 1.3    # Excellente performance en marché haussier
+    bear_market_performance: 0.6    # Mauvaise performance en marché baissier
+    sideways_market_performance: 0.8  # Performance modérée en marché latéral
+    high_volatility_performance: 1.4   # Excellente performance en haute volatilité
+    low_volatility_performance: 0.7    # Faible performance en basse volatilité
+
+# Configuration des alertes
+alerts:
+  # Alertes de breakout imminents
+  breakout_alerts:
+    resistance_approach: 0.02  # Alerte à 2% de la résistance
+    support_approach: 0.02     # Alerte à 2% du support
+    volume_building: 1.3       # Volume qui monte (1.3x moyenne)
+    
+  # Alertes de performance
+  performance_alerts:
+    drawdown_warning: 0.10   # Alerte à 10% de drawdown
+    loss_limit: 0.15         # Arrêt à 15% de perte
+    profit_alert: 0.08       # Alerte à 8% de profit
+    
+  # Alertes techniques spécifiques
+  technical_alerts:
+    failed_breakout: true         # Échec de breakout
+    false_breakout_pattern: true  # Pattern de faux breakout
+    momentum_divergence: true     # Divergence de momentum
+    volume_dry_up: 0.5           # Volume qui se tarit
+    
+  # Alertes de marché
+  market_alerts:
+    sector_weakness: true     # Faiblesse sectorielle
+    market_reversal: true     # Retournement de marché
+    earnings_approach: 5      # Résultats dans 5 jours
+    
+  # Notifications urgentes pour breakouts
+  notifications:
+    email: true
+    sms: true
+    push_notification: true
+    webhook: "https://api.finagent.com/webhooks/breakout-alerts"
+    discord: "https://discord.com/api/webhooks/breakout-channel"
+
+# Paramètres avancés
+advanced:
+  # Détection de niveaux dynamiques
+  level_detection:
+    enabled: true
+    methods:
+      - "pivot_points"
+      - "fibonacci_retracements"
+      - "volume_profile"
+      - "previous_highs_lows"
+    confidence_threshold: 0.7
+    min_level_strength: 3  # Minimum 3 touches
+    
+  # Filtrage des faux breakouts
+  false_breakout_filter:
+    enabled: true
+    confirmation_period: 15  # 15 minutes de confirmation
+    min_follow_through: 0.01  # 1% de follow-through minimum
+    volume_confirmation: 1.2  # Volume 20% au-dessus
+    
+  # Gestion des gaps
+  gap_handling:
+    enabled: true
+    gap_threshold: 0.02  # Gaps > 2%
+    gap_fade_protection: true
+    overnight_risk_reduction: 0.5  # Réduction de 50% overnight
+    
+  # Scanner de breakouts
+  breakout_scanner:
+    enabled: true
+    scan_frequency: "1m"  # Scan chaque minute
+    universe_size: 500    # 500 actions scannées
+    filters:
+      - "min_volume"
+      - "price_range"
+      - "volatility_range"
+      - "sector_inclusion"
+    
+  # Optimisation adaptive
+  optimization:
+    enabled: true
+    method: "particle_swarm"
+    optimization_frequency: "monthly"
+    parameters_to_optimize:
+      - "breakout_threshold"
+      - "volume_multiplier"
+      - "stop_loss_level"
+      - "profit_targets"
+    
+  # Machine Learning pour pattern recognition
+  ml_features:
+    enabled: true
+    feature_engineering: true
+    features:
+      - "price_patterns"
+      - "volume_patterns"
+      - "breakout_quality"
+      - "market_regime"
+      - "sector_momentum"
+    model_type: "neural_network"
+    architecture: "LSTM"
+    retrain_frequency: "weekly"
+    
+  # Gestion du risque intraday
+  intraday_risk_management:
+    enabled: true
+    max_daily_loss: 0.03     # 3% de perte journalière max
+    position_concentration: 0.4  # 40% max dans un secteur
+    correlation_limit: 0.7    # Corrélation max entre positions
+    
+  # Timing d'exécution optimal
+  execution_timing:
+    enabled: true
+    avoid_periods:
+      - "09:30-09:45"  # Éviter l'ouverture
+      - "11:30-13:30"  # Éviter le déjeuner
+      - "15:45-16:00"  # Éviter la fermeture
+    optimal_periods:
+      - "09:45-11:30"  # Matinée active
+      - "13:30-15:45"  # Après-midi actif
+
+# Configuration du risk overlay
+risk_overlay:
+  enabled: true
+  
+  # Arrêt automatique en cas de conditions défavorables
+  circuit_breakers:
+    market_volatility: 0.05   # VIX > 50
+    sector_decline: 0.08      # Secteur en baisse de 8%
+    individual_stock_halt: true
+    
+  # Réduction automatique des positions
+  position_scaling:
+    high_volatility_reduction: 0.5   # Réduction de 50% si volatilité élevée
+    correlation_spike_reduction: 0.3  # Réduction si corrélations montent
+    drawdown_scaling: true            # Réduction progressive avec drawdown
+    
+  # Monitoring continu
+  continuous_monitoring:
+    position_delta_threshold: 0.05   # Alerte si delta > 5%
+    liquidity_monitoring: true       # Surveillance liquidité
+    correlation_monitoring: true     # Surveillance corrélations
+    
+# Configuration paper trading
+paper_trading:
+  enabled: true
+  duration_days: 14  # 2 semaines pour breakouts
+  initial_capital: 25000
+  
+  # Simulation haute fidélité
+  realistic_simulation:
+    level2_data: true       # Données Level II
+    market_impact: true     # Impact sur le marché
+    partial_fills: true     # Exécutions partielles
+    execution_delay: true   # Délais d'exécution
+    slippage_modeling: true # Modélisation du slippage
+    
+  # Critères de validation stricts
+  validation_metrics:
+    min_sharpe_ratio: 0.6
+    max_drawdown: 0.18
+    min_win_rate: 0.40
+    min_profit_factor: 1.3
+    max_daily_loss: 0.05

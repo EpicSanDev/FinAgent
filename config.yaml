@@ -1,0 +1,390 @@
+# =============================================================================
+# FINAGENT - Configuration Principale
+# =============================================================================
+# Configuration par défaut pour l'agent IA financier
+# Les valeurs peuvent être surchargées par les variables d'environnement
+
+# =============================================================================
+# CONFIGURATION GÉNÉRALE
+# =============================================================================
+app:
+  name: "FinAgent"
+  version: "0.1.0"
+  description: "Agent IA pour analyse d'actions financières"
+  environment: "development"  # development, staging, production
+  debug: false
+  
+# =============================================================================
+# LOGGING ET MONITORING
+# =============================================================================
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: "structured"  # simple, structured, json
+  file:
+    enabled: true
+    path: "./data/logs/finagent.log"
+    max_size: "10MB"
+    backup_count: 5
+    rotation: "daily"
+  console:
+    enabled: true
+    colored: true
+  structured:
+    include_timestamp: true
+    include_level: true
+    include_module: true
+    include_function: true
+
+# =============================================================================
+# BASE DE DONNÉES
+# =============================================================================
+database:
+  url: "sqlite:///./data/finagent.db"
+  echo: false  # Log SQL queries (development only)
+  pool_size: 5
+  max_overflow: 10
+  pool_timeout: 30
+  pool_recycle: 3600
+  
+  # Configuration des migrations
+  migrations:
+    directory: "./finagent/persistence/database/migrations"
+    auto_upgrade: false  # true pour auto-upgrade en production
+
+# =============================================================================
+# APIS EXTERNES
+# =============================================================================
+apis:
+  # Configuration OpenRouter/Claude
+  openrouter:
+    base_url: "https://openrouter.ai/api/v1"
+    model: "anthropic/claude-3-sonnet-20240229"
+    max_tokens: 4000
+    temperature: 0.1
+    timeout: 30
+    
+  # Configuration OpenBB
+  openbb:
+    base_url: "https://my.openbb.co/api/v1"
+    timeout: 30
+    
+  # Configuration générale des APIs
+  general:
+    timeout: 30
+    max_retries: 3
+    retry_delay: 1
+    backoff_factor: 2
+    circuit_breaker:
+      failure_threshold: 5
+      recovery_timeout: 60
+
+# =============================================================================
+# CACHE
+# =============================================================================
+cache:
+  # Cache en mémoire
+  memory:
+    enabled: true
+    max_size: 1000
+    ttl: 300  # 5 minutes
+    
+  # Cache fichier
+  file:
+    enabled: true
+    directory: "./data/cache"
+    max_size_mb: 100
+    ttl: 3600  # 1 heure
+    
+  # Cache Redis (optionnel)
+  redis:
+    enabled: false
+    url: "redis://localhost:6379/0"
+    ttl: 1800  # 30 minutes
+
+# =============================================================================
+# SÉCURITÉ
+# =============================================================================
+security:
+  encryption:
+    algorithm: "AES-256-GCM"
+    key_rotation_days: 90
+    
+  api_keys:
+    storage: "keyring"  # keyring, environment, file
+    encryption: true
+    
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 60
+    burst_size: 10
+
+# =============================================================================
+# CONFIGURATION TRADING
+# =============================================================================
+trading:
+  # Paramètres par défaut
+  defaults:
+    position_size: 1000  # USD
+    risk_limit: 2.0  # pourcentage
+    max_positions: 20
+    currency: "USD"
+    
+  # Limites de sécurité
+  limits:
+    max_position_size: 10000
+    max_daily_risk: 5.0
+    max_concurrent_analysis: 10
+    
+  # Configuration du backtesting
+  backtesting:
+    default_period: "1y"
+    commission: 0.001  # 0.1%
+    slippage: 0.0005   # 0.05%
+
+# =============================================================================
+# STRATÉGIES
+# =============================================================================
+strategies:
+  # Répertoires des stratégies
+  directories:
+    templates: "./templates/strategies"
+    user_strategies: "./data/strategies"
+    
+  # Configuration par défaut des stratégies
+  defaults:
+    analysis_period: "1y"
+    indicators_period: 20
+    confidence_threshold: 0.7
+    
+  # Types de stratégies supportés
+  types:
+    - "momentum"
+    - "value"
+    - "technical"
+    - "fundamental"
+    - "hybrid"
+
+# =============================================================================
+# PORTEFEUILLE
+# =============================================================================
+portfolio:
+  # Configuration par défaut
+  defaults:
+    cash: 10000
+    currency: "USD"
+    benchmark: "SPY"
+    
+  # Calcul des performances
+  performance:
+    calculation_frequency: "daily"
+    metrics:
+      - "total_return"
+      - "sharpe_ratio"
+      - "max_drawdown"
+      - "volatility"
+      - "beta"
+      
+  # Alertes
+  alerts:
+    enabled: true
+    loss_threshold: -5.0  # pourcentage
+    gain_threshold: 10.0  # pourcentage
+
+# =============================================================================
+# IA ET ANALYSE
+# =============================================================================
+ai:
+  # Configuration du provider IA
+  provider:
+    type: "claude"  # claude, openai, local
+    enabled: true
+    
+  # Configuration Claude via OpenRouter
+  claude:
+    # Modèles disponibles
+    models:
+      default: "anthropic/claude-3.5-sonnet-20241022"
+      haiku: "anthropic/claude-3-haiku-20240307"
+      sonnet: "anthropic/claude-3-sonnet-20240229"
+      opus: "anthropic/claude-3-opus-20240229"
+      sonnet_35: "anthropic/claude-3.5-sonnet-20241022"
+      
+    # Paramètres par défaut
+    temperature: 0.1
+    max_tokens: 4000
+    top_p: 0.9
+    top_k: 0
+    system_prompt: "Vous êtes un expert en analyse financière spécialisé dans l'IA et l'analyse quantitative."
+    
+    # Configuration par service
+    service_configs:
+      analysis:
+        model: "anthropic/claude-3.5-sonnet-20241022"
+        temperature: 0.1
+        max_tokens: 3000
+      decision:
+        model: "anthropic/claude-3.5-sonnet-20241022"
+        temperature: 0.05
+        max_tokens: 2000
+      sentiment:
+        model: "anthropic/claude-3-haiku-20240307"
+        temperature: 0.2
+        max_tokens: 1000
+      strategy:
+        model: "anthropic/claude-3.5-sonnet-20241022"
+        temperature: 0.1
+        max_tokens: 4000
+    
+  # Système de mémoire IA
+  memory:
+    enabled: true
+    
+    # Configuration de persistence
+    persistence:
+      enabled: true
+      storage_path: "./data/ai_memory"
+      
+    # Politique de rétention
+    retention:
+      default_retention_days: 90
+      conversation_retention_days: 30
+      market_data_retention_days: 180
+      decision_retention_days: 365
+      auto_cleanup_enabled: true
+      cleanup_interval_hours: 24
+      
+    # Limites en mémoire
+    cache:
+      max_entries: 10000
+      conversation_limit: 500
+      market_data_limit: 1000
+      decision_limit: 1000
+    
+  # Configuration des prompts
+  prompts:
+    directory: "./finagent/ai/prompts/templates"
+    context_length: 2000
+    include_history: true
+    
+    # Configuration par type de prompt
+    types:
+      financial_analysis:
+        max_context_length: 3000
+        include_market_data: true
+        include_indicators: true
+      trading_decision:
+        max_context_length: 2500
+        include_risk_metrics: true
+        include_portfolio_context: true
+      sentiment_analysis:
+        max_context_length: 1500
+        include_news_context: true
+      strategy_interpretation:
+        max_context_length: 4000
+        include_historical_performance: true
+        
+  # Rate limiting et optimisation
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 50
+    requests_per_hour: 1000
+    burst_size: 10
+    
+  # Circuit breaker
+  circuit_breaker:
+    enabled: true
+    failure_threshold: 5
+    recovery_timeout: 300
+    half_open_max_calls: 3
+    
+  # Retry politique
+  retry:
+    max_attempts: 3
+    initial_delay: 1.0
+    backoff_factor: 2.0
+    max_delay: 60.0
+    retry_on_timeout: true
+    retry_on_rate_limit: true
+
+# =============================================================================
+# DONNÉES DE MARCHÉ
+# =============================================================================
+market_data:
+  # Sources de données
+  sources:
+    primary: "openbb"
+    fallback: ["yfinance"]
+    
+  # Configuration des données
+  data:
+    default_period: "1y"
+    default_interval: "1d"
+    symbols_limit: 100
+    
+  # Validation des données
+  validation:
+    enabled: true
+    max_missing_days: 5
+    min_volume: 100000
+
+# =============================================================================
+# CLI
+# =============================================================================
+cli:
+  # Configuration de l'interface
+  interface:
+    colored_output: true
+    progress_bars: true
+    table_style: "rounded"
+    
+  # Pagination
+  pagination:
+    page_size: 20
+    max_items: 1000
+    
+  # Formatage des sorties
+  output:
+    default_format: "table"  # table, json, csv
+    decimal_places: 2
+    date_format: "%Y-%m-%d"
+
+# =============================================================================
+# PERFORMANCE ET OPTIMISATION
+# =============================================================================
+performance:
+  # Parallélisme
+  concurrent:
+    max_workers: 4
+    analysis_batch_size: 10
+    
+  # Timeouts
+  timeouts:
+    analysis: 300  # 5 minutes
+    data_fetch: 60
+    ai_request: 30
+    
+  # Optimisations
+  optimizations:
+    lazy_loading: true
+    connection_pooling: true
+    query_optimization: true
+
+# =============================================================================
+# DÉVELOPPEMENT ET DEBUG
+# =============================================================================
+development:
+  # Mode développement
+  debug:
+    enabled: false
+    sql_echo: false
+    api_mock: false
+    
+  # Tests
+  testing:
+    mock_apis: true
+    test_data_directory: "./tests/fixtures"
+    
+  # Profiling
+  profiling:
+    enabled: false
+    output_directory: "./data/profiling"

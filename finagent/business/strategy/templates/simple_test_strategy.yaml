@@ -1,0 +1,154 @@
+# Template de test simple et valide
+strategy:
+  name: "Simple Test Strategy"
+  description: "Stratégie de test simple pour validation"
+  type: "technical"
+  version: "1.0.0"
+  author: "FinAgent Test"
+  created_date: "2024-01-01"
+
+# Configuration de l'univers d'investissement
+universe:
+  instruments:
+    - symbol: "AAPL"
+      name: "Apple Inc."
+      sector: "Technology"
+      weight: 1.0
+
+# Section d'analyse obligatoire - format correct
+analysis:
+  technical:
+    - type: "sma"
+      indicator: "sma"
+      weight: 0.5
+    - type: "rsi"
+      indicator: "rsi"
+      weight: 0.5
+  timeframe: "1h"
+  lookback_period: 30
+
+# Règles obligatoires
+rules:
+  entry:
+    - condition: "sma_bullish AND rsi_oversold"
+      action: "buy"
+      confidence: 0.7
+  exit:
+    - condition: "sma_bearish OR rsi_overbought"
+      action: "sell"
+      confidence: 0.6
+
+# Conditions d'achat simplifiées
+buy_conditions:
+  sma_bullish:
+    indicator: "sma"
+    parameters:
+      period: 20
+    operator: ">"
+    threshold: 0
+    confidence_weight: 0.6
+    
+  rsi_oversold:
+    indicator: "rsi"
+    parameters:
+      period: 14
+    operator: "<"
+    threshold: 30
+    confidence_weight: 0.4
+
+# Conditions de vente simplifiées
+sell_conditions:
+  sma_bearish:
+    indicator: "sma"
+    parameters:
+      period: 20
+    operator: "<"
+    threshold: 0
+    confidence_weight: 0.6
+    
+  rsi_overbought:
+    indicator: "rsi"
+    parameters:
+      period: 14
+    operator: ">"
+    threshold: 70
+    confidence_weight: 0.4
+
+# Gestion des risques - format correct
+risk_management:
+  stop_loss:
+    type: "percentage"
+    value: 0.05
+    
+  take_profit:
+    type: "percentage"
+    value: 0.10
+    
+  position_sizing:
+    type: "fixed"
+    value: 0.1
+    
+  max_drawdown: 0.15
+  risk_level: "medium"
+
+# Paramètres d'exécution
+execution:
+  frequency: "daily"
+  market_hours_only: true
+  minimum_confidence: 0.6
+  
+  filters:
+    min_volume: 100000
+    max_spread: 0.02
+    min_price: 10.0
+
+# Configuration des données
+data_requirements:
+  timeframe: "1h"
+  history_days: 30
+  
+  indicators:
+    - "sma"
+    - "rsi"
+  
+  data_sources:
+    primary: "real_time_provider"
+
+# Paramètres de backtesting
+backtesting:
+  start_date: "2023-01-01"
+  end_date: "2024-01-01"
+  initial_capital: 100000
+  benchmark: "SPY"
+  
+  transaction_costs:
+    commission: 0.001
+    slippage: 0.0005
+    
+  metrics:
+    - "total_return"
+    - "sharpe_ratio"
+    - "max_drawdown"
+
+# Métadonnées
+metadata:
+  tags:
+    - "test"
+    - "simple"
+    - "technical"
+  
+  expected_performance:
+    annual_return: 0.08
+    volatility: 0.15
+    max_drawdown: 0.10
+    sharpe_ratio: 0.6
+
+# Configuration des alertes
+alerts:
+  performance_alerts:
+    drawdown_warning: 0.05
+    loss_limit: 0.10
+    
+  notifications:
+    email: true
+    webhook: "https://api.finagent.com/webhooks/test-alerts"
