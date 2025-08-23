@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Responsivité - FinAgent</title>
+    
+    <!-- Import des styles principaux -->
+    <link rel="stylesheet" href="assets/css/variables.css">
+    <link rel="stylesheet" href="assets/css/base.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+    <link rel="stylesheet" href="assets/css/layout.css">
+    <link rel="stylesheet" href="assets/css/themes.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+    <link rel="stylesheet" href="assets/css/responsive-enhanced.css">
+    
+    <style>
+        .test-container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .test-section {
+            margin-bottom: 40px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+        }
+        
+        .test-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+        
+        .device-preview {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        
+        .device-frame {
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 10px;
+            background: var(--surface-color);
+        }
+        
+        .device-mobile {
+            width: 375px;
+            min-height: 667px;
+        }
+        
+        .device-tablet {
+            width: 768px;
+            min-height: 1024px;
+        }
+        
+        .device-desktop {
+            width: 1200px;
+            min-height: 800px;
+        }
+        
+        .device-label {
+            text-align: center;
+            font-weight: var(--font-weight-medium);
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+        
+        .breakpoint-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: var(--primary-color);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 10000;
+        }
+        
+        .responsive-grid {
+            display: grid;
+            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+        
+        .responsive-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 20px;
+        }
+        
+        .responsive-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .responsive-table th,
+        .responsive-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .responsive-table th {
+            background: var(--background-secondary);
+            font-weight: var(--font-weight-medium);
+        }
+        
+        .responsive-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        .sidebar-test {
+            display: flex;
+            min-height: 400px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+        
+        .sidebar-test-nav {
+            width: 250px;
+            background: var(--background-secondary);
+            padding: 20px;
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-test-content {
+            flex: 1;
+            padding: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar-test-nav {
+                position: absolute;
+                height: 100%;
+                transform: translateX(-100%);
+                z-index: 1000;
+                box-shadow: var(--shadow-lg);
+            }
+            
+            .sidebar-test-nav.open {
+                transform: translateX(0);
+            }
+        }
+        
+        .test-controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--background-secondary);
+            border-radius: var(--border-radius);
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .viewport-info {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 10000;
+        }
+    </style>
+</head>
+<body>
+    <div class="breakpoint-indicator" id="breakpoint-indicator">
+        XS
+    </div>
+    
+    <div class="viewport-info" id="viewport-info">
+        Viewport: <span id="viewport-size"></span>
+    </div>
+    
+    <div class="test-container">
+        <h1>Tests de Responsivité - FinAgent</h1>
+        <p>Cette page teste les différents composants responsive de l'interface FinAgent.</p>
+        
+        <!-- Test de grille responsive -->
+        <div class="test-section">
+            <h2 class="test-title">Grille Responsive</h2>
+            <div class="responsive-grid">
+                <div class="responsive-card">
+                    <h3>Portfolio</h3>
+                    <p>Valeur totale: €125,430.50</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 75%;"></div>
+                    </div>
+                </div>
+                <div class="responsive-card">
+                    <h3>Performance</h3>
+                    <p>+12.5% cette semaine</p>
+                    <div class="chart-container" style="height: 150px; background: var(--background-secondary);">
+                        <div style="text-align: center; line-height: 150px; color: var(--text-secondary);">
+                            Graphique de performance
+                        </div>
+                    </div>
+                </div>
+                <div class="responsive-card">
+                    <h3>Alertes</h3>
+                    <p>3 alertes actives</p>
+                    <div class="alert-item" style="padding: 8px; background: var(--danger-color-light); border-radius: 4px; margin-top: 10px;">
+                        <small>VaR dépassé de 5%</small>
+                    </div>
+                </div>
+                <div class="responsive-card">
+                    <h3>Ordres</h3>
+                    <p>2 ordres en attente</p>
+                    <button class="btn btn-primary btn-sm" style="margin-top: 10px;">
+                        Voir ordres
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Test de tableau responsive -->
+        <div class="test-section">
+            <h2 class="test-title">Tableau Responsive</h2>
+            <div class="table-responsive">
+                <table class="responsive-table">
+                    <thead>
+                        <tr>
+                            <th>Symbole</th>
+                            <th>Prix</th>
+                            <th>Variation</th>
+                            <th>Volume</th>
+                            <th>Marché</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>AAPL</td>
+                            <td>$150.25</td>
+                            <td style="color: var(--success-color);">+2.5%</td>
+                            <td>1.2M</td>
+                            <td>NASDAQ</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary">Acheter</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>GOOGL</td>
+                            <td>$2,450.80</td>
+                            <td style="color: var(--danger-color);">-1.2%</td>
+                            <td>850K</td>
+                            <td>NASDAQ</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary">Acheter</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>MSFT</td>
+                            <td>$310.45</td>
+                            <td style="color: var(--success-color);">+0.8%</td>
+                            <td>2.1M</td>
+                            <td>NASDAQ</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary">Acheter</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Test de sidebar mobile -->
+        <div class="test-section">
+            <h2 class="test-title">Navigation Mobile</h2>
+            <div class="test-controls">
+                <button class="btn btn-secondary" onclick="toggleTestSidebar()">
+                    Toggle Sidebar
+                </button>
+                <span class="d-md-none" style="color: var(--warning-color); font-weight: bold;">
+                    Mode Mobile Activé
+                </span>
+                <span class="d-none d-md-block" style="color: var(--success-color); font-weight: bold;">
+                    Mode Desktop Activé
+                </span>
+            </div>
+            <div class="sidebar-test">
+                <nav class="sidebar-test-nav" id="test-sidebar">
+                    <h4>Navigation</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 10px;">
+                            <a href="#" style="color: var(--text-primary); text-decoration: none;">
+                                📊 Dashboard
+                            </a>
+                        </li>
+                        <li style="margin-bottom: 10px;">
+                            <a href="#" style="color: var(--text-primary); text-decoration: none;">
+                                💼 Portfolio
+                            </a>
+                        </li>
+                        <li style="margin-bottom: 10px;">
+                            <a href="#" style="color: var(--text-primary); text-decoration: none;">
+                                📈 Trading
+                            </a>
+                        </li>
+                        <li style="margin-bottom: 10px;">
+                            <a href="#" style="color: var(--text-primary); text-decoration: none;">
+                                ⚠️ Risques
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+                <main class="sidebar-test-content">
+                    <h3>Contenu Principal</h3>
+                    <p>Ce contenu s'adapte à la taille de l'écran. Sur mobile, la sidebar se transforme en menu coulissant.</p>
+                    <div class="responsive-buttons">
+                        <button class="btn btn-primary">Action Principale</button>
+                        <button class="btn btn-secondary">Action Secondaire</button>
+                        <button class="btn btn-outline">Action Tertiaire</button>
+                    </div>
+                </main>
+            </div>
+        </div>
+        
+        <!-- Test de formulaires responsive -->
+        <div class="test-section">
+            <h2 class="test-title">Formulaires Responsive</h2>
+            <form>
+                <div class="form-row" style="display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap;">
+                    <div class="form-group" style="flex: 1; min-width: 200px;">
+                        <label for="symbol">Symbole</label>
+                        <input type="text" id="symbol" class="form-control" placeholder="Ex: AAPL">
+                    </div>
+                    <div class="form-group" style="flex: 1; min-width: 200px;">
+                        <label for="quantity">Quantité</label>
+                        <input type="number" id="quantity" class="form-control" placeholder="100">
+                    </div>
+                    <div class="form-group" style="flex: 1; min-width: 200px;">
+                        <label for="price">Prix</label>
+                        <input type="number" id="price" class="form-control" placeholder="150.00" step="0.01">
+                    </div>
+                </div>
+                <div class="form-row" style="display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap;">
+                    <div class="form-group" style="flex: 2; min-width: 300px;">
+                        <label for="order-type">Type d'ordre</label>
+                        <select id="order-type" class="form-control">
+                            <option>Marché</option>
+                            <option>Limite</option>
+                            <option>Stop</option>
+                            <option>Stop-Limite</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex: 1; min-width: 200px;">
+                        <label for="validity">Validité</label>
+                        <select id="validity" class="form-control">
+                            <option>Jour</option>
+                            <option>Jusqu'à annulation</option>
+                            <option>Immédiat ou annulé</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="responsive-buttons">
+                    <button type="submit" class="btn btn-success">Passer l'ordre</button>
+                    <button type="button" class="btn btn-secondary">Annuler</button>
+                    <button type="button" class="btn btn-outline">Prévisualiser</button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Test de classes utilitaires -->
+        <div class="test-section">
+            <h2 class="test-title">Classes Utilitaires de Visibilité</h2>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <div class="d-xs-block d-sm-none" style="padding: 10px; background: var(--info-color-light); border-radius: 4px;">
+                    ✅ Visible uniquement sur XS (très petits écrans)
+                </div>
+                <div class="d-none d-sm-block d-md-none" style="padding: 10px; background: var(--warning-color-light); border-radius: 4px;">
+                    ✅ Visible uniquement sur SM (petits écrans)
+                </div>
+                <div class="d-none d-md-block d-lg-none" style="padding: 10px; background: var(--success-color-light); border-radius: 4px;">
+                    ✅ Visible uniquement sur MD (tablettes)
+                </div>
+                <div class="d-none d-lg-block d-xl-none" style="padding: 10px; background: var(--primary-color-light); border-radius: 4px;">
+                    ✅ Visible uniquement sur LG (desktop)
+                </div>
+                <div class="d-none d-xl-block" style="padding: 10px; background: var(--secondary-color-light); border-radius: 4px;">
+                    ✅ Visible uniquement sur XL+ (grands écrans)
+                </div>
+            </div>
+        </div>
+        
+        <!-- Test de thèmes -->
+        <div class="test-section">
+            <h2 class="test-title">Test de Thèmes</h2>
+            <div class="test-controls">
+                <button class="btn btn-secondary" onclick="toggleTheme()">
+                    Basculer Thème
+                </button>
+                <span id="current-theme">Thème: Clair</span>
+            </div>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <div style="padding: 20px; background: var(--surface-color); border: 1px solid var(--border-color); border-radius: var(--border-radius);">
+                    <h4 style="color: var(--text-primary);">Surface</h4>
+                    <p style="color: var(--text-secondary);">Texte secondaire</p>
+                    <button class="btn btn-primary">Bouton</button>
+                </div>
+                <div style="padding: 20px; background: var(--background-secondary); border-radius: var(--border-radius);">
+                    <h4 style="color: var(--text-primary);">Arrière-plan secondaire</h4>
+                    <p style="color: var(--text-secondary);">Adapte automatiquement</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="assets/js/responsive-manager.js"></script>
+    <script src="assets/js/mobile-optimizations.js"></script>
+    
+    <script>
+        // Test functions
+        function toggleTestSidebar() {
+            const sidebar = document.getElementById('test-sidebar');
+            sidebar.classList.toggle('open');
+        }
+        
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            
+            const themeSpan = document.getElementById('current-theme');
+            themeSpan.textContent = `Thème: ${newTheme === 'dark' ? 'Sombre' : 'Clair'}`;
+        }
+        
+        // Update viewport info
+        function updateViewportInfo() {
+            const viewportSize = document.getElementById('viewport-size');
+            const breakpointIndicator = document.getElementById('breakpoint-indicator');
+            
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            
+            viewportSize.textContent = `${width}x${height}`;
+            
+            // Update breakpoint indicator
+            let breakpoint = 'XXL';
+            if (width < 576) breakpoint = 'XS';
+            else if (width < 768) breakpoint = 'SM';
+            else if (width < 992) breakpoint = 'MD';
+            else if (width < 1200) breakpoint = 'LG';
+            else if (width < 1400) breakpoint = 'XL';
+            
+            breakpointIndicator.textContent = breakpoint;
+        }
+        
+        // Initialize
+        updateViewportInfo();
+        window.addEventListener('resize', updateViewportInfo);
+        
+        // Listen for breakpoint changes
+        window.addEventListener('breakpointChange', (e) => {
+            console.log('Breakpoint changed:', e.detail);
+        });
+        
+        // Test touch device detection
+        if (window.responsiveManager) {
+            if (window.responsiveManager.isTouchDevice) {
+                console.log('Touch device detected');
+                document.body.insertAdjacentHTML('beforeend', 
+                    '<div style="position: fixed; top: 50px; right: 10px; background: var(--success-color); color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">TOUCH</div>'
+                );
+            }
+        }
+    </script>
+</body>
+</html>

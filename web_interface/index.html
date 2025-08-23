@@ -1,0 +1,2348 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FinAgent - Interface Web de Trading et Analyse Financière">
+    <title>FinAgent - Dashboard Trading</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    
+    <!-- TradingView Charting Library -->
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="assets/css/reset.css">
+    <link rel="stylesheet" href="assets/css/variables.css">
+    <link rel="stylesheet" href="assets/css/base.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+    <link rel="stylesheet" href="assets/css/layout.css">
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+    <link rel="stylesheet" href="assets/css/market.css">
+    <link rel="stylesheet" href="assets/css/technical-indicators.css">
+    <link rel="stylesheet" href="assets/css/portfolio.css">
+    <link rel="stylesheet" href="assets/css/risk.css">
+    <link rel="stylesheet" href="assets/css/trading.css">
+    <link rel="stylesheet" href="assets/css/themes.css">
+    <link rel="stylesheet" href="assets/css/search.css">
+    <link rel="stylesheet" href="assets/css/advanced-filters.css">
+    <link rel="stylesheet" href="assets/css/market-data-table.css">
+    <link rel="stylesheet" href="assets/css/notifications.css">
+    <link rel="stylesheet" href="assets/css/alerts-management.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+    <link rel="stylesheet" href="assets/css/responsive-enhanced.css">
+    <link rel="stylesheet" href="assets/css/accessibility.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
+</head>
+<body class="theme-light" data-theme="light">
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-logo">
+                <i class="fas fa-chart-line"></i>
+                <span>FinAgent</span>
+            </div>
+            <div class="loading-spinner"></div>
+            <p>Chargement du dashboard...</p>
+        </div>
+    </div>
+
+    <!-- App Container -->
+    <div id="app" class="app-container" style="display: none;">
+        <!-- Header -->
+        <header class="app-header" role="banner">
+            <div class="header-left">
+                <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle Sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="logo">
+                    <i class="fas fa-chart-line"></i>
+                    <span>FinAgent</span>
+                </div>
+            </div>
+            
+            <div class="header-center">
+                <div class="search-container">
+                    <input type="text" id="global-search" placeholder="Rechercher un symbole, stratégie, ou fonction..." class="search-input">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <button class="header-btn" id="notifications-btn" aria-label="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge" id="notification-count">3</span>
+                </button>
+                
+                <button class="header-btn" id="theme-toggle" aria-label="Toggle Theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                
+                <div class="user-menu">
+                    <button class="user-avatar" id="user-menu-toggle" aria-label="User Menu">
+                        <img src="" alt="User Avatar" class="user-avatar-img" id="userAvatarHeader">
+                        <span class="user-name" id="userNameHeader">Chargement...</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="user-dropdown" id="userDropdownHeader">
+                        <div class="user-dropdown-header">
+                            <img src="" alt="Avatar" class="dropdown-avatar" id="userAvatarDropdown">
+                            <div class="dropdown-user-info">
+                                <div class="dropdown-user-name" id="userNameDropdown">Chargement...</div>
+                                <div class="dropdown-user-email" id="userEmailDropdown">Chargement...</div>
+                            </div>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item" onclick="authGuard.showProfileModal()">
+                            <i class="fas fa-user"></i>
+                            Mon profil
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-cog"></i>
+                            Paramètres
+                        </a>
+                        <a href="#" class="dropdown-item" id="notifications-center-btn">
+                            <i class="fas fa-bell"></i>
+                            Notifications
+                        </a>
+                        <a href="#" class="dropdown-item" id="alerts-management-btn">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Gestion des alertes
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-shield-alt"></i>
+                            Sécurité
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-question-circle"></i>
+                            Aide & Support
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item logout-item" onclick="authGuard.logout('Déconnexion manuelle')">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Déconnexion
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar" role="navigation" aria-label="Navigation principale">
+            <nav class="sidebar-nav">
+                <ul class="nav-menu" role="menubar" aria-label="Menu principal">
+                    <li class="nav-item active" role="none">
+                        <a href="#dashboard" class="nav-link" data-page="dashboard" role="menuitem" aria-current="page">
+                            <i class="fas fa-tachometer-alt" aria-hidden="true"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" role="none">
+                        <a href="#portfolio" class="nav-link" data-page="portfolio" role="menuitem">
+                            <i class="fas fa-briefcase" aria-hidden="true"></i>
+                            <span>Portefeuille</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" role="none">
+                        <a href="#market" class="nav-link" data-page="market" role="menuitem">
+                            <i class="fas fa-chart-bar" aria-hidden="true"></i>
+                            <span>Marché</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" role="none">
+                        <a href="#trading" class="nav-link" data-page="trading" role="menuitem">
+                            <i class="fas fa-exchange-alt" aria-hidden="true"></i>
+                            <span>Trading</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" role="none">
+                        <a href="#analysis" class="nav-link" data-page="analysis" role="menuitem">
+                            <i class="fas fa-microscope" aria-hidden="true"></i>
+                            <span>Analyse</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" role="none">
+                        <a href="#strategies" class="nav-link" data-page="strategies" role="menuitem">
+                            <i class="fas fa-chess" aria-hidden="true"></i>
+                            <span>Stratégies</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" role="none">
+                        <a href="#risk" class="nav-link" data-page="risk" role="menuitem">
+                            <i class="fas fa-shield-alt" aria-hidden="true"></i>
+                            <span>Risques</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" role="none">
+                        <a href="#reports" class="nav-link" data-page="reports" role="menuitem">
+                            <i class="fas fa-file-alt" aria-hidden="true"></i>
+                            <span>Rapports</span>
+                        </a>
+                    </li>
+                </ul>
+                
+                <div class="sidebar-footer">
+                    <button class="nav-link" id="settings-btn">
+                        <i class="fas fa-cog"></i>
+                        <span>Paramètres</span>
+                    </button>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content" id="main-content" role="main" aria-label="Contenu principal">
+            <!-- Dashboard Page -->
+            <div id="dashboard-page" class="page active" data-page-content="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
+                <div class="page-header">
+                    <div class="page-title-section">
+                        <h1 class="page-title" id="dashboard-title">Dashboard Trading</h1>
+                        <p class="page-subtitle">Vue d'ensemble de votre portefeuille et des marchés financiers</p>
+                    </div>
+                    <div class="page-actions" role="toolbar" aria-label="Actions de la page">
+                        <button class="btn btn-outline btn-sm" id="refresh-dashboard" aria-describedby="refresh-help">
+                            <i class="fas fa-sync-alt" aria-hidden="true"></i>
+                            Actualiser
+                        </button>
+                        <div id="refresh-help" class="sr-only">Actualise les données du dashboard</div>
+                        <button class="btn btn-primary btn-sm" id="add-widget" aria-describedby="add-widget-help">
+                            <i class="fas fa-plus" aria-hidden="true"></i>
+                            Ajouter Widget
+                        </button>
+                        <div id="add-widget-help" class="sr-only">Ajoute un nouveau widget au dashboard</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-container dashboard-widgets" role="region" aria-label="Widgets du dashboard">
+                    <!-- Portfolio Summary Row -->
+                    <div class="dashboard-section">
+                        <div class="dashboard-row">
+                            <!-- Portfolio Summary Widget -->
+                            <div class="widget widget-full widget-height-sm" data-widget-id="portfolio-summary" draggable="true" role="region" aria-labelledby="portfolio-summary-title" tabindex="0">
+                                <div class="widget-controls" role="toolbar" aria-label="Contrôles du widget">
+                                    <button class="widget-control-btn" data-action="minimize" aria-label="Minimiser le widget">
+                                        <i class="fas fa-minus" aria-hidden="true"></i>
+                                    </button>
+                                    <button class="widget-control-btn" data-action="configure" aria-label="Configurer le widget">
+                                        <i class="fas fa-cog" aria-hidden="true"></i>
+                                    </button>
+                                    <button class="widget-control-btn remove-btn" data-action="remove" aria-label="Supprimer le widget">
+                                        <i class="fas fa-times" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                                <div class="widget-header">
+                                    <h3 class="widget-title" id="portfolio-summary-title">
+                                        <i class="fas fa-briefcase" aria-hidden="true"></i>
+                                        Résumé du Portefeuille
+                                    </h3>
+                                    <div class="widget-actions" role="toolbar" aria-label="Actions du widget">
+                                        <button class="widget-action" aria-label="Actualiser les données du portefeuille">
+                                            <i class="fas fa-sync-alt" aria-hidden="true"></i>
+                                        </button>
+                                        <button class="widget-action" aria-label="Paramètres du widget">
+                                            <i class="fas fa-cog" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="widget-body">
+                                    <div class="portfolio-summary" role="group" aria-label="Métriques du portefeuille">
+                                        <div class="portfolio-metric" role="group" aria-labelledby="total-value-label">
+                                            <div class="portfolio-metric-label" id="total-value-label">Valeur Totale</div>
+                                            <div class="portfolio-metric-value" id="total-value" aria-describedby="total-value-change">€125,847.32</div>
+                                            <div class="portfolio-metric-change positive" id="total-value-change" aria-label="Hausse de 2134.56 euros, soit 1.72%">
+                                                <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                                                +€2,134.56 (+1.72%)
+                                            </div>
+                                        </div>
+                                        <div class="portfolio-metric" role="group" aria-labelledby="daily-pnl-label">
+                                            <div class="portfolio-metric-label" id="daily-pnl-label">P&L Jour</div>
+                                            <div class="portfolio-metric-value" id="daily-pnl" aria-describedby="daily-pnl-change">+€1,247.83</div>
+                                            <div class="portfolio-metric-change positive" id="daily-pnl-change" aria-label="Hausse de 0.99%">
+                                                <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                                                +0.99%
+                                            </div>
+                                        </div>
+                                        <div class="portfolio-metric" role="group" aria-labelledby="total-pnl-label">
+                                            <div class="portfolio-metric-label" id="total-pnl-label">P&L Total</div>
+                                            <div class="portfolio-metric-value" id="total-pnl" aria-describedby="total-pnl-change">+€12,847.32</div>
+                                            <div class="portfolio-metric-change positive" id="total-pnl-change" aria-label="Hausse de 11.38%">
+                                                <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                                                +11.38%
+                                            </div>
+                                        </div>
+                                        <div class="portfolio-metric" role="group" aria-labelledby="cash-label">
+                                            <div class="portfolio-metric-label" id="cash-label">Liquidités</div>
+                                            <div class="portfolio-metric-value" id="cash" aria-describedby="cash-change">€8,924.67</div>
+                                            <div class="portfolio-metric-change neutral" id="cash-change" aria-label="7.09% du portefeuille">
+                                                <i class="fas fa-minus" aria-hidden="true"></i>
+                                                7.09%
+                                            </div>
+                                        </div>
+                                        <div class="portfolio-metric" role="group" aria-labelledby="positions-label">
+                                            <div class="portfolio-metric-label" id="positions-label">Positions</div>
+                                            <div class="portfolio-metric-value" id="positions-count" aria-describedby="positions-status">23</div>
+                                            <div class="portfolio-metric-change neutral" id="positions-status" aria-label="23 positions actives">
+                                                <i class="fas fa-equals" aria-hidden="true"></i>
+                                                Actives
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main Charts Row -->
+                    <div class="dashboard-section">
+                        <div class="dashboard-row">
+                            <!-- Performance Chart Widget -->
+                            <div class="widget widget-lg widget-height-lg" role="region" aria-labelledby="performance-chart-title" tabindex="0">
+                                <div class="widget-header">
+                                    <h3 class="widget-title" id="performance-chart-title">
+                                        <i class="fas fa-chart-line" aria-hidden="true"></i>
+                                        Performance du Portefeuille
+                                    </h3>
+                                    <div class="widget-actions" role="toolbar" aria-label="Actions du graphique">
+                                        <button class="widget-action" aria-label="Afficher en plein écran">
+                                            <i class="fas fa-expand" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="widget-body">
+                                    <div class="performance-chart">
+                                        <div class="performance-summary">
+                                            <div class="performance-metric">
+                                                <div class="performance-metric-label">1M</div>
+                                                <div class="performance-metric-value">+3.24%</div>
+                                            </div>
+                                            <div class="performance-metric">
+                                                <div class="performance-metric-label">3M</div>
+                                                <div class="performance-metric-value">+8.67%</div>
+                                            </div>
+                                            <div class="performance-metric">
+                                                <div class="performance-metric-label">YTD</div>
+                                                <div class="performance-metric-value">+11.38%</div>
+                                            </div>
+                                            <div class="performance-metric">
+                                                <div class="performance-metric-label">1Y</div>
+                                                <div class="performance-metric-value">+15.92%</div>
+                                            </div>
+                                        </div>
+                                        <div class="chart-container">
+                                            <canvas id="performance-chart" class="chart-canvas"></canvas>
+                                        </div>
+                                        <div class="chart-controls">
+                                            <div class="chart-timeframe">
+                                                <button class="chart-timeframe-btn" data-period="1D">1J</button>
+                                                <button class="chart-timeframe-btn" data-period="1W">1S</button>
+                                                <button class="chart-timeframe-btn active" data-period="1M">1M</button>
+                                                <button class="chart-timeframe-btn" data-period="3M">3M</button>
+                                                <button class="chart-timeframe-btn" data-period="1Y">1A</button>
+                                                <button class="chart-timeframe-btn" data-period="ALL">Tout</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Market Overview Widget -->
+                            <div class="widget widget-md widget-height-lg">
+                                <div class="widget-header">
+                                    <h3 class="widget-title">
+                                        <i class="fas fa-globe"></i>
+                                        Aperçu du Marché
+                                    </h3>
+                                    <div class="widget-actions">
+                                        <button class="widget-action" title="Actualiser">
+                                            <i class="fas fa-sync-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="widget-body">
+                                    <div class="market-overview">
+                                        <div class="market-indices">
+                                            <div class="market-index">
+                                                <div class="market-index-name">CAC 40</div>
+                                                <div class="market-index-value">7,234.56</div>
+                                                <div class="market-index-change positive">
+                                                    <i class="fas fa-arrow-up"></i>
+                                                    +1.24%
+                                                </div>
+                                            </div>
+                                            <div class="market-index">
+                                                <div class="market-index-name">DAX</div>
+                                                <div class="market-index-value">15,847.32</div>
+                                                <div class="market-index-change positive">
+                                                    <i class="fas fa-arrow-up"></i>
+                                                    +0.87%
+                                                </div>
+                                            </div>
+                                            <div class="market-index">
+                                                <div class="market-index-name">S&P 500</div>
+                                                <div class="market-index-value">4,387.21</div>
+                                                <div class="market-index-change negative">
+                                                    <i class="fas fa-arrow-down"></i>
+                                                    -0.34%
+                                                </div>
+                                            </div>
+                                            <div class="market-index">
+                                                <div class="market-index-name">NASDAQ</div>
+                                                <div class="market-index-value">13,492.76</div>
+                                                <div class="market-index-change negative">
+                                                    <i class="fas fa-arrow-down"></i>
+                                                    -0.56%
+                                                </div>
+                                            </div>
+                                            <div class="market-index">
+                                                <div class="market-index-name">EUR/USD</div>
+                                                <div class="market-index-value">1.0892</div>
+                                                <div class="market-index-change positive">
+                                                    <i class="fas fa-arrow-up"></i>
+                                                    +0.12%
+                                                </div>
+                                            </div>
+                                            <div class="market-index">
+                                                <div class="market-index-name">BTC/USD</div>
+                                                <div class="market-index-value">42,847</div>
+                                                <div class="market-index-change positive">
+                                                    <i class="fas fa-arrow-up"></i>
+                                                    +2.34%
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Secondary Widgets Row -->
+                    <div class="dashboard-section">
+                        <div class="dashboard-row">
+                            <!-- Watchlist Widget -->
+                            <div class="widget widget-md widget-height-lg">
+                                <div class="widget-header">
+                                    <h3 class="widget-title">
+                                        <i class="fas fa-star"></i>
+                                        Watchlist
+                                    </h3>
+                                    <div class="widget-actions">
+                                        <button class="widget-action" title="Ajouter">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="widget-body">
+                                    <div class="watchlist">
+                                        <div class="watchlist-search">
+                                            <input type="text" placeholder="Rechercher un symbole..." id="watchlist-search">
+                                            <button class="btn btn-sm btn-primary">
+                                                <i class="fas fa-search"></i>
+                                            </button>
+                                        </div>
+                                        <div class="watchlist-list">
+                                            <div class="watchlist-item">
+                                                <div class="watchlist-symbol">
+                                                    <div class="watchlist-symbol-name">AAPL</div>
+                                                    <div class="watchlist-symbol-desc">Apple Inc.</div>
+                                                </div>
+                                                <div class="watchlist-price">
+                                                    <div class="watchlist-price-current">$182.34</div>
+                                                    <div class="watchlist-price-change positive">
+                                                        <i class="fas fa-arrow-up"></i>
+                                                        +1.23%
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="watchlist-item">
+                                                <div class="watchlist-symbol">
+                                                    <div class="watchlist-symbol-name">MSFT</div>
+                                                    <div class="watchlist-symbol-desc">Microsoft Corp.</div>
+                                                </div>
+                                                <div class="watchlist-price">
+                                                    <div class="watchlist-price-current">$374.56</div>
+                                                    <div class="watchlist-price-change negative">
+                                                        <i class="fas fa-arrow-down"></i>
+                                                        -0.45%
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="watchlist-item">
+                                                <div class="watchlist-symbol">
+                                                    <div class="watchlist-symbol-name">GOOGL</div>
+                                                    <div class="watchlist-symbol-desc">Alphabet Inc.</div>
+                                                </div>
+                                                <div class="watchlist-price">
+                                                    <div class="watchlist-price-current">$142.87</div>
+                                                    <div class="watchlist-price-change positive">
+                                                        <i class="fas fa-arrow-up"></i>
+                                                        +0.78%
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="watchlist-item">
+                                                <div class="watchlist-symbol">
+                                                    <div class="watchlist-symbol-name">TSLA</div>
+                                                    <div class="watchlist-symbol-desc">Tesla Inc.</div>
+                                                </div>
+                                                <div class="watchlist-price">
+                                                    <div class="watchlist-price-current">$234.12</div>
+                                                    <div class="watchlist-price-change positive">
+                                                        <i class="fas fa-arrow-up"></i>
+                                                        +2.14%
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="watchlist-item">
+                                                <div class="watchlist-symbol">
+                                                    <div class="watchlist-symbol-name">NVDA</div>
+                                                    <div class="watchlist-symbol-desc">NVIDIA Corp.</div>
+                                                </div>
+                                                <div class="watchlist-price">
+                                                    <div class="watchlist-price-current">$487.93</div>
+                                                    <div class="watchlist-price-change positive">
+                                                        <i class="fas fa-arrow-up"></i>
+                                                        +1.89%
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- News Widget -->
+                            <div class="widget widget-md widget-height-lg">
+                                <div class="widget-header">
+                                    <h3 class="widget-title">
+                                        <i class="fas fa-newspaper"></i>
+                                        Actualités Financières
+                                    </h3>
+                                    <div class="widget-actions">
+                                        <button class="widget-action" title="Actualiser">
+                                            <i class="fas fa-sync-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="widget-body">
+                                    <div class="news-widget">
+                                        <div class="news-list">
+                                            <div class="news-item">
+                                                <div class="news-content">
+                                                    <div class="news-title">Les marchés européens ouvrent en hausse après les données d'inflation</div>
+                                                    <div class="news-excerpt">Les indices européens progressent suite à la publication des chiffres de l'inflation qui rassurent les investisseurs...</div>
+                                                    <div class="news-meta">
+                                                        <span>Reuters</span>
+                                                        <span>•</span>
+                                                        <span>Il y a 15 min</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="news-item">
+                                                <div class="news-content">
+                                                    <div class="news-title">Apple annonce ses résultats trimestriels dépassant les attentes</div>
+                                                    <div class="news-excerpt">Le géant technologique a publié des résultats supérieurs aux prévisions des analystes pour ce trimestre...</div>
+                                                    <div class="news-meta">
+                                                        <span>Bloomberg</span>
+                                                        <span>•</span>
+                                                        <span>Il y a 1h</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="news-item">
+                                                <div class="news-content">
+                                                    <div class="news-title">La BCE maintient ses taux d'intérêt inchangés</div>
+                                                    <div class="news-excerpt">La Banque Centrale Européenne a décidé de maintenir ses taux directeurs au niveau actuel...</div>
+                                                    <div class="news-meta">
+                                                        <span>Financial Times</span>
+                                                        <span>•</span>
+                                                        <span>Il y a 2h</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="news-item">
+                                                <div class="news-content">
+                                                    <div class="news-title">Tesla dépasse les objectifs de livraison pour le trimestre</div>
+                                                    <div class="news-excerpt">Le constructeur de véhicules électriques a livré plus de véhicules que prévu au cours du dernier trimestre...</div>
+                                                    <div class="news-meta">
+                                                        <span>CNBC</span>
+                                                        <span>•</span>
+                                                        <span>Il y a 3h</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Quick Actions Widget -->
+                            <div class="widget widget-sm widget-height-lg">
+                                <div class="widget-header">
+                                    <h3 class="widget-title">
+                                        <i class="fas fa-bolt"></i>
+                                        Actions Rapides
+                                    </h3>
+                                </div>
+                                <div class="widget-body">
+                                    <div class="quick-actions">
+                                        <a href="#trading" class="quick-action" data-page="trading">
+                                            <i class="fas fa-plus-circle"></i>
+                                            <span>Nouvel Ordre</span>
+                                        </a>
+                                        <a href="#portfolio" class="quick-action" data-page="portfolio">
+                                            <i class="fas fa-chart-pie"></i>
+                                            <span>Portefeuille</span>
+                                        </a>
+                                        <a href="#analysis" class="quick-action" data-page="analysis">
+                                            <i class="fas fa-microscope"></i>
+                                            <span>Analyser</span>
+                                        </a>
+                                        <a href="#strategies" class="quick-action" data-page="strategies">
+                                            <i class="fas fa-chess"></i>
+                                            <span>Stratégies</span>
+                                        </a>
+                                        <a href="#risk" class="quick-action" data-page="risk">
+                                            <i class="fas fa-shield-alt"></i>
+                                            <span>Risques</span>
+                                        </a>
+                                        <a href="#reports" class="quick-action" data-page="reports">
+                                            <i class="fas fa-file-alt"></i>
+                                            <span>Rapports</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Portfolio Page -->
+            <div id="portfolio-page" class="page">
+                <div class="page-header">
+                    <div class="page-title">
+                        <h1>Gestion de Portefeuille</h1>
+                        <p>Gérez vos investissements et analysez vos performances</p>
+                    </div>
+                    <div class="page-actions">
+                        <button class="btn btn-outline" id="portfolio-help">
+                            <i class="fas fa-question-circle"></i>
+                            Aide
+                        </button>
+                        <div class="dropdown">
+                            <button class="btn btn-outline dropdown-toggle" id="portfolio-options">
+                                <i class="fas fa-cog"></i>
+                                Options
+                            </button>
+                            <div class="dropdown-menu">
+                                <a href="#" class="dropdown-item">
+                                    <i class="fas fa-download"></i>
+                                    Exporter les données
+                                </a>
+                                <a href="#" class="dropdown-item">
+                                    <i class="fas fa-upload"></i>
+                                    Importer portfolio
+                                </a>
+                                <a href="#" class="dropdown-item">
+                                    <i class="fas fa-print"></i>
+                                    Imprimer rapport
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a href="#" class="dropdown-item">
+                                    <i class="fas fa-cog"></i>
+                                    Paramètres
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="page-content" id="portfolio-content">
+                    <!-- Portfolio content will be dynamically loaded here -->
+                </div>
+            </div>
+            
+            <!-- Market Page -->
+            <div id="market-page" class="page" data-page-content="market">
+                <div class="page-header">
+                    <div class="page-title-section">
+                        <h1 class="page-title">Données de Marché</h1>
+                        <p class="page-subtitle">Analyse avancée des marchés financiers avec graphiques en temps réel</p>
+                    </div>
+                    <div class="page-actions">
+                        <div class="btn-group">
+                            <button class="btn btn-outline btn-sm active" data-market="stocks">Actions</button>
+                            <button class="btn btn-outline btn-sm" data-market="forex">Forex</button>
+                            <button class="btn btn-outline btn-sm" data-market="crypto">Crypto</button>
+                            <button class="btn btn-outline btn-sm" data-market="indices">Indices</button>
+                        </div>
+                        <button class="btn btn-primary btn-sm" id="market-settings">
+                            <i class="fas fa-cog"></i>
+                            Paramètres
+                        </button>
+                    </div>
+                </div>
+
+                <div class="market-container">
+                    <!-- Main Chart Section -->
+                    <div class="market-section">
+                        <div class="market-row">
+                            <!-- Candlestick Chart -->
+                            <div class="widget widget-xl widget-height-xl">
+                                <div class="widget-header">
+                                    <h3 class="widget-title">
+                                        <i class="fas fa-chart-candlestick"></i>
+                                        Graphique Principal - AAPL
+                                    </h3>
+                                    <div class="widget-actions">
+                                        <select class="widget-select" id="symbol-selector">
+                                            <option value="AAPL">Apple Inc. (AAPL)</option>
+                                            <option value="MSFT">Microsoft Corp. (MSFT)</option>
+                                            <option value="GOOGL">Alphabet Inc. (GOOGL)</option>
+                                            <option value="AMZN">Amazon.com Inc. (AMZN)</option>
+                                            <option value="TSLA">Tesla Inc. (TSLA)</option>
+                                        </select>
+                                        <select class="widget-select" id="timeframe-selector">
+                                            <option value="1m">1 min</option>
+                                            <option value="5m">5 min</option>
+                                            <option value="15m">15 min</option>
+                                            <option value="1h" selected>1 heure</option>
+                                            <option value="4h">4 heures</option>
+                                            <option value="1d">1 jour</option>
+                                        </select>
+                                        <button class="widget-action" title="Plein écran">
+                                            <i class="fas fa-expand"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="widget-body">
+                                    <div class="chart-container">
+                                        <div id="candlestick-chart" class="chart-canvas"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Market Info Panel -->
+                            <div class="widget widget-sm widget-height-xl">
+                                <div class="widget-header">
+                                    <h3 class="widget-title">
+                                        <i class="fas fa-info-circle"></i>
+                                        Informations
+                                    </h3>
+                                </div>
+                                <div class="widget-body">
+                                    <div class="market-info">
+                                        <div class="info-group">
+                                            <div class="info-label">Dernière transaction</div>
+                                            <div class="info-value" id="last-price">$182.34</div>
+                                            <div class="info-change positive">+1.23 (+0.68%)</div>
+                                        </div>
+                                        <div class="info-group">
+                                            <div class="info-label">Ouverture</div>
+                                            <div class="info-value">$181.11</div>
+                                        </div>
+                                        <div class="info-group">
+                                            <div class="info-label">Plus haut</div>
+                                            <div class="info-value">$183.47</div>
+                                        </div>
+                                        <div class="info-group">
+                                            <div class="info-label">Plus bas</div>
+                                            <div class="info-value">$180.92</div>
+                                        </div>
+                                        <div class="info-group">
+                                            <div class="info-label">Volume</div>
+                                            <div class="info-value">2.8M</div>
+                                        </div>
+                                        <div class="info-group">
+                                            <div class="info-label">Cap. boursière</div>
+                                            <div class="info-value">$2.87T</div>
+                                        </div>
+                                        <div class="info-group">
+                                            <div class="info-label">P/E Ratio</div>
+                                            <div class="info-value">28.4</div>
+                                        </div>
+                                        <div class="info-group">
+                                            <div class="info-label">52W High</div>
+                                            <div class="info-value">$199.62</div>
+                                        </div>
+                                        <div class="info-group">
+                                            <div class="info-label">52W Low</div>
+                                            <div class="info-value">$164.08</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Volume and Technical Indicators -->
+                    <div class="market-section">
+                        <div class="market-row">
+                            <!-- Volume Chart -->
+                            <div class="widget widget-md widget-height-md">
+                                <div class="widget-header">
+                                    <h3 class="widget-title">
+                                        <i class="fas fa-chart-bar"></i>
+                                        Volume
+                                    </h3>
+                                </div>
+                                <div class="widget-body">
+                                    <div class="chart-container">
+                                        <canvas id="volume-chart" class="chart-canvas"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- RSI Indicator -->
+                            <div class="widget widget-md widget-height-md">
+                                <div class="widget-header">
+                                    <h3 class="widget-title">
+                                        <i class="fas fa-wave-square"></i>
+                                        RSI (14)
+                                    </h3>
+                                    <div class="widget-actions">
+                                        <span class="indicator-value" id="rsi-current">64.3</span>
+                                    </div>
+                                </div>
+                                <div class="widget-body">
+                                    <div class="chart-container">
+                                        <canvas id="rsi-chart" class="chart-canvas"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- MACD Indicator -->
+                            <div class="widget widget-md widget-height-md">
+                                <div class="widget-header">
+                                    <h3 class="widget-title">
+                                        <i class="fas fa-signal"></i>
+                                        MACD
+                                    </h3>
+                                    <div class="widget-actions">
+                                        <span class="indicator-value" id="macd-current">0.142</span>
+                                    </div>
+                                </div>
+                                <div class="widget-body">
+                                    <div class="chart-container">
+                                        <canvas id="macd-chart" class="chart-canvas"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Market Data Filtering -->
+                    <div class="market-section">
+                        <div class="market-row">
+                            <!-- Filters Panel -->
+                            <div class="widget widget-full">
+                                <div class="widget-header">
+                                    <h3 class="widget-title">
+                                        <i class="fas fa-table"></i>
+                                        Données de Marché Filtrées
+                                    </h3>
+                                    <div class="widget-actions">
+                                        <div id="filter-stats" class="filter-stats"></div>
+                                        <button class="widget-action" id="export-data" title="Exporter les données">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="widget-body">
+                                    <!-- Container for Advanced Filters -->
+                                    <div id="market-filters"></div>
+                                    
+                                    <!-- Market Data Table -->
+                                    <div id="market-data-table" class="market-data-container">
+                                        <!-- Table will be populated by JavaScript -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Advanced Analysis -->
+                    <div class="market-section">
+                        <div class="market-row">
+                            <!-- Correlation Heatmap -->
+                            <div class="widget widget-lg widget-height-lg">
+                                <div class="widget-header">
+                                    <h3 class="widget-title">
+                                        <i class="fas fa-th"></i>
+                                        Matrice de Corrélation
+                                    </h3>
+                                    <div class="widget-actions">
+                                        <select class="widget-select" id="correlation-period">
+                                            <option value="30d">30 jours</option>
+                                            <option value="90d" selected>90 jours</option>
+                                            <option value="1y">1 an</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="widget-body">
+                                    <div id="correlation-heatmap" class="heatmap-container"></div>
+                                </div>
+                            </div>
+
+                            <!-- Market Depth -->
+                            <div class="widget widget-md widget-height-lg">
+                                <div class="widget-header">
+                                    <h3 class="widget-title">
+                                        <i class="fas fa-layer-group"></i>
+                                        Profondeur du Marché
+                                    </h3>
+                                    <div class="widget-actions">
+                                        <button class="widget-action" title="Actualiser">
+                                            <i class="fas fa-sync-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="widget-body">
+                                    <div class="depth-summary">
+                                        <div class="depth-metric">
+                                            <span class="depth-label">Spread</span>
+                                            <span class="depth-value">$0.02</span>
+                                        </div>
+                                        <div class="depth-metric">
+                                            <span class="depth-label">Bid Size</span>
+                                            <span class="depth-value">1,247</span>
+                                        </div>
+                                        <div class="depth-metric">
+                                            <span class="depth-label">Ask Size</span>
+                                            <span class="depth-value">892</span>
+                                        </div>
+                                    </div>
+                                    <div class="chart-container">
+                                        <canvas id="depth-chart" class="chart-canvas"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Market Overview -->
+                    <div class="market-section">
+                        <div class="market-row">
+                            <!-- Top Movers -->
+                            <div class="widget widget-md widget-height-md">
+                                <div class="widget-header">
+                                    <h3 class="widget-title">
+                                        <i class="fas fa-rocket"></i>
+                                        Plus Grandes Variations
+                                    </h3>
+                                    <div class="widget-actions">
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline active" data-movers="gainers">Hausses</button>
+                                            <button class="btn btn-outline" data-movers="losers">Baisses</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="widget-body">
+                                    <div class="movers-list" id="top-movers">
+                                        <div class="mover-item">
+                                            <div class="mover-symbol">
+                                                <span class="symbol">NVDA</span>
+                                                <span class="company">NVIDIA Corp.</span>
+                                            </div>
+                                            <div class="mover-price">
+                                                <span class="price">$487.93</span>
+                                                <span class="change positive">+15.32 (+3.24%)</span>
+                                            </div>
+                                        </div>
+                                        <div class="mover-item">
+                                            <div class="mover-symbol">
+                                                <span class="symbol">AMD</span>
+                                                <span class="company">Advanced Micro Devices</span>
+                                            </div>
+                                            <div class="mover-price">
+                                                <span class="price">$112.45</span>
+                                                <span class="change positive">+3.78 (+3.48%)</span>
+                                            </div>
+                                        </div>
+                                        <div class="mover-item">
+                                            <div class="mover-symbol">
+                                                <span class="symbol">TSLA</span>
+                                                <span class="company">Tesla Inc.</span>
+                                            </div>
+                                            <div class="mover-price">
+                                                <span class="price">$234.12</span>
+                                                <span class="change positive">+6.89 (+3.03%)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sector Performance -->
+                            <div class="widget widget-md widget-height-md">
+                                <div class="widget-header">
+                                    <h3 class="widget-title">
+                                        <i class="fas fa-industry"></i>
+                                        Performance par Secteur
+                                    </h3>
+                                </div>
+                                <div class="widget-body">
+                                    <div class="sectors-list">
+                                        <div class="sector-item">
+                                            <span class="sector-name">Technologie</span>
+                                            <span class="sector-change positive">+1.84%</span>
+                                        </div>
+                                        <div class="sector-item">
+                                            <span class="sector-name">Santé</span>
+                                            <span class="sector-change positive">+0.92%</span>
+                                        </div>
+                                        <div class="sector-item">
+                                            <span class="sector-name">Finance</span>
+                                            <span class="sector-change positive">+0.67%</span>
+                                        </div>
+                                        <div class="sector-item">
+                                            <span class="sector-name">Énergie</span>
+                                            <span class="sector-change negative">-0.34%</span>
+                                        </div>
+                                        <div class="sector-item">
+                                            <span class="sector-name">Immobilier</span>
+                                            <span class="sector-change negative">-0.89%</span>
+                                        </div>
+                                        <div class="sector-item">
+                                            <span class="sector-name">Matériaux</span>
+                                            <span class="sector-change negative">-1.23%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Economic Calendar -->
+                            <div class="widget widget-sm widget-height-md">
+                                <div class="widget-header">
+                                    <h3 class="widget-title">
+                                        <i class="fas fa-calendar"></i>
+                                        Calendrier Économique
+                                    </h3>
+                                </div>
+                                <div class="widget-body">
+                                    <div class="calendar-events">
+                                        <div class="event-item">
+                                            <div class="event-time">14:30</div>
+                                            <div class="event-details">
+                                                <div class="event-name">PIB USA</div>
+                                                <div class="event-impact high">Impact élevé</div>
+                                            </div>
+                                        </div>
+                                        <div class="event-item">
+                                            <div class="event-time">16:00</div>
+                                            <div class="event-details">
+                                                <div class="event-name">Discours Fed</div>
+                                                <div class="event-impact medium">Impact moyen</div>
+                                            </div>
+                                        </div>
+                                        <div class="event-item">
+                                            <div class="event-time">18:45</div>
+                                            <div class="event-details">
+                                                <div class="event-name">IPC Eurozone</div>
+                                                <div class="event-impact high">Impact élevé</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Technical Indicators Section -->
+                    <div class="market-section">
+                        <div class="widget widget-full">
+                            <div class="widget-header">
+                                <h3 class="widget-title">
+                                    <i class="fas fa-chart-line"></i>
+                                    Indicateurs Techniques
+                                </h3>
+                            </div>
+                            <div class="widget-body">
+                                <div id="technical-indicators">
+                                    <!-- Technical indicators will be loaded here by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Trading Page -->
+            <div id="trading-page" class="page">
+                <div class="trading-layout">
+                    <!-- Trading Header -->
+                    <div class="trading-header">
+                        <div class="trading-title-section">
+                            <h1 class="page-title">
+                                <i class="fas fa-exchange-alt"></i>
+                                Trading & Exécution d'Ordres
+                            </h1>
+                            <p class="page-description">
+                                Exécutez vos ordres et gérez vos positions en temps réel
+                            </p>
+                        </div>
+                        <div class="trading-status">
+                            <div class="market-status">
+                                <span class="status-indicator active"></span>
+                                <span class="status-text">Marché Ouvert</span>
+                            </div>
+                            <div class="account-balance">
+                                <span class="balance-label">Solde Disponible :</span>
+                                <span class="balance-value" id="available-balance">€25,430.50</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Trading Main Content -->
+                    <div class="trading-main">
+                        <!-- Order Entry Panel -->
+                        <div class="order-panel">
+                            <div class="panel-header">
+                                <h2>Passer un Ordre</h2>
+                                <div class="order-type-tabs">
+                                    <button class="order-tab active" data-type="market">Marché</button>
+                                    <button class="order-tab" data-type="limit">Limite</button>
+                                    <button class="order-tab" data-type="stop">Stop</button>
+                                    <button class="order-tab" data-type="stop-limit">Stop-Limite</button>
+                                </div>
+                            </div>
+
+                            <div class="order-form">
+                                <!-- Symbol Selection -->
+                                <div class="form-group">
+                                    <label for="order-symbol">Symbole</label>
+                                    <div class="symbol-input-group">
+                                        <input type="text" id="order-symbol" placeholder="Ex: AAPL, MSFT..."
+                                               autocomplete="off" class="symbol-input">
+                                        <button class="symbol-search-btn" type="button">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                    <div class="symbol-suggestions" id="symbol-suggestions"></div>
+                                </div>
+
+                                <!-- Current Price Display -->
+                                <div class="current-price-display" id="current-price-display" style="display: none;">
+                                    <div class="price-info">
+                                        <span class="symbol-name" id="selected-symbol-name">-</span>
+                                        <span class="current-price" id="current-price">-</span>
+                                        <span class="price-change" id="price-change">-</span>
+                                    </div>
+                                    <div class="bid-ask">
+                                        <span class="bid">Bid: <span id="bid-price">-</span></span>
+                                        <span class="ask">Ask: <span id="ask-price">-</span></span>
+                                    </div>
+                                </div>
+
+                                <!-- Buy/Sell Toggle -->
+                                <div class="form-group">
+                                    <div class="buy-sell-toggle">
+                                        <input type="radio" id="order-buy" name="order-side" value="buy" checked>
+                                        <label for="order-buy" class="buy-option">
+                                            <i class="fas fa-arrow-up"></i>
+                                            Acheter
+                                        </label>
+                                        
+                                        <input type="radio" id="order-sell" name="order-side" value="sell">
+                                        <label for="order-sell" class="sell-option">
+                                            <i class="fas fa-arrow-down"></i>
+                                            Vendre
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Quantity -->
+                                <div class="form-group">
+                                    <label for="order-quantity">Quantité</label>
+                                    <div class="quantity-input-group">
+                                        <input type="number" id="order-quantity" min="1" step="1"
+                                               placeholder="Nombre d'actions">
+                                        <div class="quantity-helpers">
+                                            <button type="button" class="qty-btn" data-percentage="25">25%</button>
+                                            <button type="button" class="qty-btn" data-percentage="50">50%</button>
+                                            <button type="button" class="qty-btn" data-percentage="75">75%</button>
+                                            <button type="button" class="qty-btn" data-percentage="100">Max</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Price Fields (for limit orders) -->
+                                <div class="price-fields" id="price-fields" style="display: none;">
+                                    <div class="form-group">
+                                        <label for="limit-price">Prix Limite</label>
+                                        <input type="number" id="limit-price" step="0.01" placeholder="0.00">
+                                    </div>
+                                    <div class="form-group stop-price-group" id="stop-price-group" style="display: none;">
+                                        <label for="stop-price">Prix Stop</label>
+                                        <input type="number" id="stop-price" step="0.01" placeholder="0.00">
+                                    </div>
+                                </div>
+
+                                <!-- Time in Force -->
+                                <div class="form-group">
+                                    <label for="time-in-force">Durée de Validité</label>
+                                    <select id="time-in-force">
+                                        <option value="day">Jour (Day)</option>
+                                        <option value="gtc">Jusqu'à Annulation (GTC)</option>
+                                        <option value="ioc">Immediate or Cancel (IOC)</option>
+                                        <option value="fok">Fill or Kill (FOK)</option>
+                                    </select>
+                                </div>
+
+                                <!-- Order Summary -->
+                                <div class="order-summary">
+                                    <div class="summary-row">
+                                        <span>Valeur estimée :</span>
+                                        <span id="estimated-value">€0.00</span>
+                                    </div>
+                                    <div class="summary-row">
+                                        <span>Frais estimés :</span>
+                                        <span id="estimated-fees">€0.00</span>
+                                    </div>
+                                    <div class="summary-row total">
+                                        <span>Total :</span>
+                                        <span id="total-cost">€0.00</span>
+                                    </div>
+                                </div>
+
+                                <!-- Submit Buttons -->
+                                <div class="order-actions">
+                                    <button type="button" class="btn btn-outline" id="preview-order">
+                                        <i class="fas fa-eye"></i>
+                                        Prévisualiser
+                                    </button>
+                                    <button type="button" class="btn btn-primary" id="submit-order">
+                                        <i class="fas fa-paper-plane"></i>
+                                        Passer l'Ordre
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Charts and Market Data -->
+                        <div class="trading-charts">
+                            <div class="chart-container">
+                                <div class="chart-header">
+                                    <h3 id="chart-title">Sélectionnez un symbole</h3>
+                                    <div class="chart-controls">
+                                        <div class="timeframe-selector">
+                                            <button class="timeframe-btn" data-interval="1m">1m</button>
+                                            <button class="timeframe-btn" data-interval="5m">5m</button>
+                                            <button class="timeframe-btn active" data-interval="15m">15m</button>
+                                            <button class="timeframe-btn" data-interval="1h">1h</button>
+                                            <button class="timeframe-btn" data-interval="1d">1j</button>
+                                        </div>
+                                        <button class="chart-fullscreen" title="Plein écran">
+                                            <i class="fas fa-expand"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="chart-wrapper">
+                                    <canvas id="trading-chart"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Order Book -->
+                            <div class="orderbook-container">
+                                <h3>Carnet d'Ordres</h3>
+                                <div class="orderbook">
+                                    <div class="orderbook-header">
+                                        <span>Prix</span>
+                                        <span>Quantité</span>
+                                        <span>Total</span>
+                                    </div>
+                                    <div class="orderbook-asks" id="orderbook-asks">
+                                        <!-- Ask orders will be populated here -->
+                                    </div>
+                                    <div class="spread-indicator">
+                                        <span class="spread-label">Spread:</span>
+                                        <span class="spread-value" id="spread-value">-</span>
+                                    </div>
+                                    <div class="orderbook-bids" id="orderbook-bids">
+                                        <!-- Bid orders will be populated here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Trading Tables Section -->
+                    <div class="trading-tables">
+                        <!-- Tabs Navigation -->
+                        <div class="tables-nav">
+                            <button class="table-tab active" data-table="open-orders">
+                                <i class="fas fa-clock"></i>
+                                Ordres en Cours
+                                <span class="badge" id="open-orders-count">3</span>
+                            </button>
+                            <button class="table-tab" data-table="recent-trades">
+                                <i class="fas fa-history"></i>
+                                Transactions Récentes
+                            </button>
+                            <button class="table-tab" data-table="current-positions">
+                                <i class="fas fa-briefcase"></i>
+                                Positions Actuelles
+                            </button>
+                            <button class="table-tab" data-table="trade-history">
+                                <i class="fas fa-list"></i>
+                                Historique Complet
+                            </button>
+                        </div>
+
+                        <!-- Open Orders Table -->
+                        <div id="open-orders-table" class="trading-table active">
+                            <div class="table-header">
+                                <h3>Ordres en Cours</h3>
+                                <div class="table-actions">
+                                    <button class="btn btn-sm btn-outline" id="cancel-all-orders">
+                                        <i class="fas fa-times"></i>
+                                        Tout Annuler
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="table-container">
+                                <table class="orders-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Symbole</th>
+                                            <th>Type</th>
+                                            <th>Côté</th>
+                                            <th>Quantité</th>
+                                            <th>Prix</th>
+                                            <th>Statut</th>
+                                            <th>Heure</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="open-orders-tbody">
+                                        <tr>
+                                            <td>
+                                                <div class="symbol-cell">
+                                                    <span class="symbol">AAPL</span>
+                                                    <span class="company">Apple Inc.</span>
+                                                </div>
+                                            </td>
+                                            <td><span class="order-type limit">Limite</span></td>
+                                            <td><span class="order-side buy">Achat</span></td>
+                                            <td>100</td>
+                                            <td>€175.50</td>
+                                            <td><span class="order-status pending">En Attente</span></td>
+                                            <td>14:23:15</td>
+                                            <td>
+                                                <div class="order-actions">
+                                                    <button class="btn btn-xs btn-outline" title="Modifier">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-xs btn-danger" title="Annuler">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="symbol-cell">
+                                                    <span class="symbol">MSFT</span>
+                                                    <span class="company">Microsoft Corp.</span>
+                                                </div>
+                                            </td>
+                                            <td><span class="order-type stop">Stop</span></td>
+                                            <td><span class="order-side sell">Vente</span></td>
+                                            <td>50</td>
+                                            <td>€340.00</td>
+                                            <td><span class="order-status pending">En Attente</span></td>
+                                            <td>13:45:30</td>
+                                            <td>
+                                                <div class="order-actions">
+                                                    <button class="btn btn-xs btn-outline" title="Modifier">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-xs btn-danger" title="Annuler">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Recent Trades Table -->
+                        <div id="recent-trades-table" class="trading-table">
+                            <div class="table-header">
+                                <h3>Transactions Récentes</h3>
+                                <div class="table-actions">
+                                    <button class="btn btn-sm btn-outline" id="export-trades">
+                                        <i class="fas fa-download"></i>
+                                        Exporter
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="table-container">
+                                <table class="trades-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Symbole</th>
+                                            <th>Côté</th>
+                                            <th>Quantité</th>
+                                            <th>Prix</th>
+                                            <th>Valeur</th>
+                                            <th>Frais</th>
+                                            <th>P&L</th>
+                                            <th>Heure</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recent-trades-tbody">
+                                        <tr>
+                                            <td>
+                                                <div class="symbol-cell">
+                                                    <span class="symbol">GOOGL</span>
+                                                    <span class="company">Alphabet Inc.</span>
+                                                </div>
+                                            </td>
+                                            <td><span class="order-side buy">Achat</span></td>
+                                            <td>25</td>
+                                            <td>€142.30</td>
+                                            <td>€3,557.50</td>
+                                            <td>€3.56</td>
+                                            <td><span class="pnl positive">+€127.50</span></td>
+                                            <td>11:30:45</td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="symbol-cell">
+                                                    <span class="symbol">TSLA</span>
+                                                    <span class="company">Tesla Inc.</span>
+                                                </div>
+                                            </td>
+                                            <td><span class="order-side sell">Vente</span></td>
+                                            <td>10</td>
+                                            <td>€248.90</td>
+                                            <td>€2,489.00</td>
+                                            <td>€2.49</td>
+                                            <td><span class="pnl negative">-€45.20</span></td>
+                                            <td>10:15:22</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Current Positions Table -->
+                        <div id="current-positions-table" class="trading-table">
+                            <div class="table-header">
+                                <h3>Positions Actuelles</h3>
+                                <div class="table-actions">
+                                    <button class="btn btn-sm btn-outline" id="close-all-positions">
+                                        <i class="fas fa-times-circle"></i>
+                                        Tout Fermer
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="table-container">
+                                <table class="positions-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Symbole</th>
+                                            <th>Quantité</th>
+                                            <th>Prix Moyen</th>
+                                            <th>Prix Actuel</th>
+                                            <th>Valeur</th>
+                                            <th>P&L Non Réalisé</th>
+                                            <th>P&L %</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="current-positions-tbody">
+                                        <tr>
+                                            <td>
+                                                <div class="symbol-cell">
+                                                    <span class="symbol">AAPL</span>
+                                                    <span class="company">Apple Inc.</span>
+                                                </div>
+                                            </td>
+                                            <td>150</td>
+                                            <td>€172.35</td>
+                                            <td>€178.20</td>
+                                            <td>€26,730.00</td>
+                                            <td><span class="pnl positive">+€877.50</span></td>
+                                            <td><span class="pnl-percent positive">+3.39%</span></td>
+                                            <td>
+                                                <div class="position-actions">
+                                                    <button class="btn btn-xs btn-primary" title="Vendre">
+                                                        <i class="fas fa-minus"></i>
+                                                    </button>
+                                                    <button class="btn btn-xs btn-outline" title="Ajouter">
+                                                        <i class="fas fa-plus"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="symbol-cell">
+                                                    <span class="symbol">MSFT</span>
+                                                    <span class="company">Microsoft Corp.</span>
+                                                </div>
+                                            </td>
+                                            <td>75</td>
+                                            <td>€345.60</td>
+                                            <td>€342.80</td>
+                                            <td>€25,710.00</td>
+                                            <td><span class="pnl negative">-€210.00</span></td>
+                                            <td><span class="pnl-percent negative">-0.81%</span></td>
+                                            <td>
+                                                <div class="position-actions">
+                                                    <button class="btn btn-xs btn-primary" title="Vendre">
+                                                        <i class="fas fa-minus"></i>
+                                                    </button>
+                                                    <button class="btn btn-xs btn-outline" title="Ajouter">
+                                                        <i class="fas fa-plus"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Trade History Table -->
+                        <div id="trade-history-table" class="trading-table">
+                            <div class="table-header">
+                                <h3>Historique Complet des Transactions</h3>
+                                <div class="table-actions">
+                                    <div class="filter-controls">
+                                        <select id="history-filter-period">
+                                            <option value="today">Aujourd'hui</option>
+                                            <option value="week">Cette Semaine</option>
+                                            <option value="month" selected>Ce Mois</option>
+                                            <option value="quarter">Ce Trimestre</option>
+                                            <option value="year">Cette Année</option>
+                                        </select>
+                                        <input type="text" id="history-filter-symbol" placeholder="Filtrer par symbole...">
+                                    </div>
+                                    <button class="btn btn-sm btn-outline" id="export-history">
+                                        <i class="fas fa-download"></i>
+                                        Exporter
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="table-container">
+                                <table class="history-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Symbole</th>
+                                            <th>Type</th>
+                                            <th>Côté</th>
+                                            <th>Quantité</th>
+                                            <th>Prix</th>
+                                            <th>Valeur</th>
+                                            <th>Frais</th>
+                                            <th>P&L Réalisé</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="trade-history-tbody">
+                                        <!-- History data will be populated by JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Analysis Page -->
+            <div id="analysis-page" class="page">
+                <!-- Analysis content will be loaded here -->
+            </div>
+            
+            <!-- Strategies Page -->
+            <div id="strategies-page" class="page">
+                <!-- Strategies content will be loaded here -->
+            </div>
+            
+            <!-- Risk Page -->
+            <div id="risk-page" class="page">
+                <div class="risk-layout">
+                    <!-- Risk Header -->
+                    <div class="risk-header">
+                        <div class="risk-title-section">
+                            <h1 class="page-title">
+                                <i class="fas fa-shield-alt"></i>
+                                Évaluation des Risques
+                            </h1>
+                            <p class="page-description">
+                                Analysez et surveillez les risques de votre portefeuille en temps réel
+                            </p>
+                        </div>
+                        <div class="risk-actions">
+                            <button class="btn btn-primary" id="refresh-risk-data">
+                                <i class="fas fa-sync-alt"></i>
+                                Actualiser
+                            </button>
+                            <button class="btn btn-outline" id="export-risk-report">
+                                <i class="fas fa-download"></i>
+                                Exporter Rapport
+                            </button>
+                            <button class="btn btn-outline" id="risk-settings">
+                                <i class="fas fa-cog"></i>
+                                Paramètres
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Risk Overview Cards -->
+                    <div class="risk-overview">
+                        <div class="risk-cards-grid">
+                            <div class="risk-card overall-risk">
+                                <div class="risk-card-header">
+                                    <h3>Score de Risque Global</h3>
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="risk-card-body">
+                                    <div class="risk-score" id="overall-risk-score">
+                                        <span class="score-value">7.2</span>
+                                        <span class="score-label">/10</span>
+                                    </div>
+                                    <div class="risk-level moderate" id="overall-risk-level">
+                                        Risque Modéré
+                                    </div>
+                                    <div class="risk-change">
+                                        <i class="fas fa-arrow-down"></i>
+                                        -0.3 depuis hier
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="risk-card var-risk">
+                                <div class="risk-card-header">
+                                    <h3>Value at Risk (VaR)</h3>
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <div class="risk-card-body">
+                                    <div class="var-values">
+                                        <div class="var-item">
+                                            <span class="var-period">1 jour (95%)</span>
+                                            <span class="var-value">-€2,340</span>
+                                        </div>
+                                        <div class="var-item">
+                                            <span class="var-period">10 jours (99%)</span>
+                                            <span class="var-value">-€7,890</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="risk-card volatility-risk">
+                                <div class="risk-card-header">
+                                    <h3>Volatilité</h3>
+                                    <i class="fas fa-wave-square"></i>
+                                </div>
+                                <div class="risk-card-body">
+                                    <div class="volatility-values">
+                                        <div class="volatility-item">
+                                            <span class="volatility-period">Annualisée</span>
+                                            <span class="volatility-value">18.5%</span>
+                                        </div>
+                                        <div class="volatility-trend">
+                                            <i class="fas fa-arrow-up text-warning"></i>
+                                            +2.1% ce mois
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="risk-card correlation-risk">
+                                <div class="risk-card-header">
+                                    <h3>Corrélation Moyenne</h3>
+                                    <i class="fas fa-project-diagram"></i>
+                                </div>
+                                <div class="risk-card-body">
+                                    <div class="correlation-value">
+                                        <span class="correlation-number">0.72</span>
+                                        <div class="correlation-status">
+                                            Corrélation Élevée
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Risk Tabs Navigation -->
+                    <div class="risk-tabs">
+                        <div class="tabs-nav">
+                            <button class="tab-btn active" data-tab="risk-dashboard">
+                                <i class="fas fa-tachometer-alt"></i>
+                                Tableau de Bord
+                            </button>
+                            <button class="tab-btn" data-tab="var-analysis">
+                                <i class="fas fa-chart-area"></i>
+                                Analyse VaR
+                            </button>
+                            <button class="tab-btn" data-tab="stress-testing">
+                                <i class="fas fa-flask"></i>
+                                Tests de Stress
+                            </button>
+                            <button class="tab-btn" data-tab="risk-alerts">
+                                <i class="fas fa-bell"></i>
+                                Alertes Risques
+                            </button>
+                            <button class="tab-btn" data-tab="risk-limits">
+                                <i class="fas fa-sliders-h"></i>
+                                Limites de Risque
+                            </button>
+                        </div>
+
+                        <!-- Risk Dashboard Tab -->
+                        <div id="risk-dashboard" class="tab-pane active">
+                            <div class="risk-dashboard-content">
+                                <!-- Risk Metrics Grid -->
+                                <div class="risk-metrics-grid">
+                                    <div class="risk-metric-card">
+                                        <h4>Ratio de Sharpe</h4>
+                                        <div class="metric-value positive">1.34</div>
+                                        <div class="metric-description">Rendement ajusté au risque</div>
+                                    </div>
+                                    <div class="risk-metric-card">
+                                        <h4>Drawdown Max</h4>
+                                        <div class="metric-value negative">-12.8%</div>
+                                        <div class="metric-description">Perte maximale</div>
+                                    </div>
+                                    <div class="risk-metric-card">
+                                        <h4>Beta (Marché)</h4>
+                                        <div class="metric-value">1.18</div>
+                                        <div class="metric-description">Sensibilité au marché</div>
+                                    </div>
+                                    <div class="risk-metric-card">
+                                        <h4>Alpha</h4>
+                                        <div class="metric-value positive">2.7%</div>
+                                        <div class="metric-description">Surperformance</div>
+                                    </div>
+                                </div>
+
+                                <!-- Risk Charts -->
+                                <div class="risk-charts-grid">
+                                    <div class="risk-chart-container">
+                                        <h3>Évolution du VaR</h3>
+                                        <div class="chart-wrapper">
+                                            <canvas id="var-evolution-chart"></canvas>
+                                        </div>
+                                    </div>
+                                    <div class="risk-chart-container">
+                                        <h3>Distribution des Rendements</h3>
+                                        <div class="chart-wrapper">
+                                            <canvas id="returns-distribution-chart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Risk Breakdown -->
+                                <div class="risk-breakdown">
+                                    <h3>Décomposition des Risques</h3>
+                                    <div class="risk-breakdown-grid">
+                                        <div class="risk-breakdown-item">
+                                            <div class="risk-category">
+                                                <i class="fas fa-chart-pie"></i>
+                                                <span>Risque de Marché</span>
+                                            </div>
+                                            <div class="risk-percentage">65%</div>
+                                            <div class="risk-bar">
+                                                <div class="risk-fill" style="width: 65%; background: var(--error-color);"></div>
+                                            </div>
+                                        </div>
+                                        <div class="risk-breakdown-item">
+                                            <div class="risk-category">
+                                                <i class="fas fa-building"></i>
+                                                <span>Risque Spécifique</span>
+                                            </div>
+                                            <div class="risk-percentage">25%</div>
+                                            <div class="risk-bar">
+                                                <div class="risk-fill" style="width: 25%; background: var(--warning-color);"></div>
+                                            </div>
+                                        </div>
+                                        <div class="risk-breakdown-item">
+                                            <div class="risk-category">
+                                                <i class="fas fa-exchange-alt"></i>
+                                                <span>Risque de Change</span>
+                                            </div>
+                                            <div class="risk-percentage">8%</div>
+                                            <div class="risk-bar">
+                                                <div class="risk-fill" style="width: 8%; background: var(--info-color);"></div>
+                                            </div>
+                                        </div>
+                                        <div class="risk-breakdown-item">
+                                            <div class="risk-category">
+                                                <i class="fas fa-coins"></i>
+                                                <span>Risque de Liquidité</span>
+                                            </div>
+                                            <div class="risk-percentage">2%</div>
+                                            <div class="risk-bar">
+                                                <div class="risk-fill" style="width: 2%; background: var(--success-color);"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- VaR Analysis Tab -->
+                        <div id="var-analysis" class="tab-pane">
+                            <div class="var-analysis-content">
+                                <div class="var-controls">
+                                    <div class="var-settings">
+                                        <div class="setting-group">
+                                            <label>Période</label>
+                                            <select id="var-period">
+                                                <option value="1">1 jour</option>
+                                                <option value="5">5 jours</option>
+                                                <option value="10" selected>10 jours</option>
+                                                <option value="20">20 jours</option>
+                                            </select>
+                                        </div>
+                                        <div class="setting-group">
+                                            <label>Niveau de Confiance</label>
+                                            <select id="var-confidence">
+                                                <option value="0.90">90%</option>
+                                                <option value="0.95" selected>95%</option>
+                                                <option value="0.99">99%</option>
+                                            </select>
+                                        </div>
+                                        <div class="setting-group">
+                                            <label>Méthode</label>
+                                            <select id="var-method">
+                                                <option value="historical" selected>Historique</option>
+                                                <option value="parametric">Paramétrique</option>
+                                                <option value="montecarlo">Monte Carlo</option>
+                                            </select>
+                                        </div>
+                                        <button class="btn btn-primary" id="calculate-var">
+                                            <i class="fas fa-calculator"></i>
+                                            Calculer VaR
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="var-results">
+                                    <div class="var-summary">
+                                        <div class="var-summary-card">
+                                            <h4>VaR Calculé</h4>
+                                            <div class="var-value-large" id="calculated-var">-€7,890</div>
+                                            <p>Perte potentielle maximale avec 95% de confiance sur 10 jours</p>
+                                        </div>
+                                        <div class="var-summary-card">
+                                            <h4>Expected Shortfall (ES)</h4>
+                                            <div class="var-value-large" id="expected-shortfall">-€11,240</div>
+                                            <p>Perte moyenne au-delà du VaR</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="var-chart-container">
+                                        <h3>Distribution des P&L et VaR</h3>
+                                        <div class="chart-wrapper">
+                                            <canvas id="var-distribution-chart"></canvas>
+                                        </div>
+                                    </div>
+
+                                    <div class="var-backtesting">
+                                        <h3>Backtesting du VaR</h3>
+                                        <div class="backtesting-metrics">
+                                            <div class="backtesting-metric">
+                                                <span class="metric-label">Exceptions</span>
+                                                <span class="metric-value">12 / 250</span>
+                                            </div>
+                                            <div class="backtesting-metric">
+                                                <span class="metric-label">Taux d'Exception</span>
+                                                <span class="metric-value">4.8%</span>
+                                            </div>
+                                            <div class="backtesting-metric">
+                                                <span class="metric-label">Test de Kupiec</span>
+                                                <span class="metric-value status-ok">Validé</span>
+                                            </div>
+                                        </div>
+                                        <div class="chart-wrapper">
+                                            <canvas id="var-backtesting-chart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Stress Testing Tab -->
+                        <div id="stress-testing" class="tab-pane">
+                            <div class="stress-testing-content">
+                                <div class="stress-scenarios">
+                                    <h3>Scénarios de Stress</h3>
+                                    <div class="scenarios-grid">
+                                        <div class="scenario-card" data-scenario="market-crash">
+                                            <div class="scenario-header">
+                                                <i class="fas fa-chart-line-down"></i>
+                                                <h4>Krach Boursier</h4>
+                                            </div>
+                                            <div class="scenario-description">
+                                                Chute de 30% des indices boursiers
+                                            </div>
+                                            <div class="scenario-impact">
+                                                <span class="impact-label">Impact estimé :</span>
+                                                <span class="impact-value negative">-€45,670</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="scenario-card" data-scenario="interest-rate">
+                                            <div class="scenario-header">
+                                                <i class="fas fa-percentage"></i>
+                                                <h4>Hausse des Taux</h4>
+                                            </div>
+                                            <div class="scenario-description">
+                                                Augmentation de 200 points de base
+                                            </div>
+                                            <div class="scenario-impact">
+                                                <span class="impact-label">Impact estimé :</span>
+                                                <span class="impact-value negative">-€12,890</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="scenario-card" data-scenario="currency-crisis">
+                                            <div class="scenario-header">
+                                                <i class="fas fa-euro-sign"></i>
+                                                <h4>Crise Monétaire</h4>
+                                            </div>
+                                            <div class="scenario-description">
+                                                Dévaluation de 20% de l'EUR/USD
+                                            </div>
+                                            <div class="scenario-impact">
+                                                <span class="impact-label">Impact estimé :</span>
+                                                <span class="impact-value negative">-€8,450</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="scenario-card" data-scenario="volatility-spike">
+                                            <div class="scenario-header">
+                                                <i class="fas fa-bolt"></i>
+                                                <h4>Pic de Volatilité</h4>
+                                            </div>
+                                            <div class="scenario-description">
+                                                VIX à 50 (panique du marché)
+                                            </div>
+                                            <div class="scenario-impact">
+                                                <span class="impact-label">Impact estimé :</span>
+                                                <span class="impact-value negative">-€23,120</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="stress-results" id="stress-results" style="display: none;">
+                                    <h3>Résultats du Test de Stress</h3>
+                                    <div class="stress-summary">
+                                        <div class="stress-metric">
+                                            <span class="metric-label">Scénario</span>
+                                            <span class="metric-value" id="selected-scenario">-</span>
+                                        </div>
+                                        <div class="stress-metric">
+                                            <span class="metric-label">Perte Totale</span>
+                                            <span class="metric-value negative" id="total-loss">-</span>
+                                        </div>
+                                        <div class="stress-metric">
+                                            <span class="metric-label">% du Portefeuille</span>
+                                            <span class="metric-value" id="loss-percentage">-</span>
+                                        </div>
+                                    </div>
+                                    <div class="chart-wrapper">
+                                        <canvas id="stress-impact-chart"></canvas>
+                                    </div>
+                                </div>
+
+                                <div class="custom-stress">
+                                    <h3>Test de Stress Personnalisé</h3>
+                                    <div class="custom-stress-form">
+                                        <div class="stress-parameters">
+                                            <div class="parameter-group">
+                                                <label>Variation CAC 40 (%)</label>
+                                                <input type="number" id="cac40-change" value="-10" step="0.1">
+                                            </div>
+                                            <div class="parameter-group">
+                                                <label>Variation USD/EUR (%)</label>
+                                                <input type="number" id="usdeur-change" value="5" step="0.1">
+                                            </div>
+                                            <div class="parameter-group">
+                                                <label>Variation Taux 10 ans (bp)</label>
+                                                <input type="number" id="rate-change" value="50" step="1">
+                                            </div>
+                                            <div class="parameter-group">
+                                                <label>Variation VIX (%)</label>
+                                                <input type="number" id="vix-change" value="30" step="0.1">
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-primary" id="run-custom-stress">
+                                            <i class="fas fa-play"></i>
+                                            Exécuter Test
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Risk Alerts Tab -->
+                        <div id="risk-alerts" class="tab-pane">
+                            <div class="risk-alerts-content">
+                                <div class="alerts-header">
+                                    <h3>Alertes de Risque</h3>
+                                    <button class="btn btn-primary" id="create-alert">
+                                        <i class="fas fa-plus"></i>
+                                        Nouvelle Alerte
+                                    </button>
+                                </div>
+
+                                <div class="alerts-summary">
+                                    <div class="alert-summary-card critical">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        <div class="alert-count">2</div>
+                                        <div class="alert-label">Critiques</div>
+                                    </div>
+                                    <div class="alert-summary-card warning">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        <div class="alert-count">5</div>
+                                        <div class="alert-label">Avertissements</div>
+                                    </div>
+                                    <div class="alert-summary-card info">
+                                        <i class="fas fa-info-circle"></i>
+                                        <div class="alert-count">3</div>
+                                        <div class="alert-label">Informations</div>
+                                    </div>
+                                </div>
+
+                                <div class="alerts-list">
+                                    <div class="alert-item critical">
+                                        <div class="alert-icon">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                        </div>
+                                        <div class="alert-content">
+                                            <div class="alert-title">VaR Dépassé</div>
+                                            <div class="alert-description">
+                                                Le VaR 1-jour a été dépassé de 15% aujourd'hui
+                                            </div>
+                                            <div class="alert-timestamp">Il y a 2 heures</div>
+                                        </div>
+                                        <div class="alert-actions">
+                                            <button class="btn btn-sm btn-outline">
+                                                <i class="fas fa-eye"></i>
+                                                Voir Détails
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="alert-item critical">
+                                        <div class="alert-icon">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                        </div>
+                                        <div class="alert-content">
+                                            <div class="alert-title">Corrélation Élevée</div>
+                                            <div class="alert-description">
+                                                Corrélation entre AAPL et MSFT dépasse 0.9
+                                            </div>
+                                            <div class="alert-timestamp">Il y a 4 heures</div>
+                                        </div>
+                                        <div class="alert-actions">
+                                            <button class="btn btn-sm btn-outline">
+                                                <i class="fas fa-eye"></i>
+                                                Voir Détails
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="alert-item warning">
+                                        <div class="alert-icon">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                        </div>
+                                        <div class="alert-content">
+                                            <div class="alert-title">Volatilité Élevée</div>
+                                            <div class="alert-description">
+                                                La volatilité du portefeuille dépasse 20%
+                                            </div>
+                                            <div class="alert-timestamp">Hier</div>
+                                        </div>
+                                        <div class="alert-actions">
+                                            <button class="btn btn-sm btn-outline">
+                                                <i class="fas fa-eye"></i>
+                                                Voir Détails
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="alert-item info">
+                                        <div class="alert-icon">
+                                            <i class="fas fa-info-circle"></i>
+                                        </div>
+                                        <div class="alert-content">
+                                            <div class="alert-title">Rapport Mensuel</div>
+                                            <div class="alert-description">
+                                                Le rapport mensuel de risque est disponible
+                                            </div>
+                                            <div class="alert-timestamp">Il y a 2 jours</div>
+                                        </div>
+                                        <div class="alert-actions">
+                                            <button class="btn btn-sm btn-outline">
+                                                <i class="fas fa-download"></i>
+                                                Télécharger
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Risk Limits Tab -->
+                        <div id="risk-limits" class="tab-pane">
+                            <div class="risk-limits-content">
+                                <div class="limits-header">
+                                    <h3>Limites de Risque</h3>
+                                    <button class="btn btn-primary" id="save-limits">
+                                        <i class="fas fa-save"></i>
+                                        Sauvegarder
+                                    </button>
+                                </div>
+
+                                <div class="limits-grid">
+                                    <div class="limit-section">
+                                        <h4>Limites VaR</h4>
+                                        <div class="limit-controls">
+                                            <div class="limit-item">
+                                                <label>VaR 1-jour (95%)</label>
+                                                <div class="limit-input-group">
+                                                    <input type="number" value="5000" step="100">
+                                                    <span class="currency">€</span>
+                                                </div>
+                                                <div class="limit-usage">
+                                                    <div class="usage-bar">
+                                                        <div class="usage-fill" style="width: 47%;"></div>
+                                                    </div>
+                                                    <span class="usage-text">2,340€ / 5,000€</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="limit-item">
+                                                <label>VaR 10-jours (99%)</label>
+                                                <div class="limit-input-group">
+                                                    <input type="number" value="15000" step="100">
+                                                    <span class="currency">€</span>
+                                                </div>
+                                                <div class="limit-usage">
+                                                    <div class="usage-bar">
+                                                        <div class="usage-fill" style="width: 53%;"></div>
+                                                    </div>
+                                                    <span class="usage-text">7,890€ / 15,000€</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="limit-section">
+                                        <h4>Limites de Volatilité</h4>
+                                        <div class="limit-controls">
+                                            <div class="limit-item">
+                                                <label>Volatilité Maximale</label>
+                                                <div class="limit-input-group">
+                                                    <input type="number" value="25" step="0.1">
+                                                    <span class="currency">%</span>
+                                                </div>
+                                                <div class="limit-usage">
+                                                    <div class="usage-bar">
+                                                        <div class="usage-fill" style="width: 74%;"></div>
+                                                    </div>
+                                                    <span class="usage-text">18.5% / 25%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="limit-section">
+                                        <h4>Limites de Concentration</h4>
+                                        <div class="limit-controls">
+                                            <div class="limit-item">
+                                                <label>Position Maximum (% du portefeuille)</label>
+                                                <div class="limit-input-group">
+                                                    <input type="number" value="10" step="0.1">
+                                                    <span class="currency">%</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="limit-item">
+                                                <label>Secteur Maximum (% du portefeuille)</label>
+                                                <div class="limit-input-group">
+                                                    <input type="number" value="25" step="0.1">
+                                                    <span class="currency">%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="limit-section">
+                                        <h4>Limites de Drawdown</h4>
+                                        <div class="limit-controls">
+                                            <div class="limit-item">
+                                                <label>Drawdown Maximum</label>
+                                                <div class="limit-input-group">
+                                                    <input type="number" value="15" step="0.1">
+                                                    <span class="currency">%</span>
+                                                </div>
+                                                <div class="limit-usage">
+                                                    <div class="usage-bar">
+                                                        <div class="usage-fill" style="width: 85%;"></div>
+                                                    </div>
+                                                    <span class="usage-text">12.8% / 15%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="alert-settings">
+                                    <h4>Paramètres d'Alertes</h4>
+                                    <div class="alert-setting-item">
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" checked>
+                                            <span class="checkmark"></span>
+                                            Alertes Email
+                                        </label>
+                                    </div>
+                                    <div class="alert-setting-item">
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" checked>
+                                            <span class="checkmark"></span>
+                                            Notifications Push
+                                        </label>
+                                    </div>
+                                    <div class="alert-setting-item">
+                                        <label class="checkbox-label">
+                                            <input type="checkbox">
+                                            <span class="checkmark"></span>
+                                            Alertes SMS
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Reports Page -->
+            <div id="reports-page" class="page">
+                <!-- Reports content will be loaded here -->
+            </div>
+        </main>
+
+        <!-- Modals Container -->
+        <div id="modals-container">
+            <!-- Modals will be injected here -->
+        </div>
+
+        <!-- Notifications Panel -->
+        <div id="notifications-panel" class="notifications-panel">
+            <div class="notifications-header">
+                <h3>Notifications</h3>
+                <button class="close-btn" id="close-notifications">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="notifications-content">
+                <!-- Notifications will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Toast Container -->
+        <div id="toast-container" class="toast-container">
+            <!-- Toast notifications will appear here -->
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="assets/js/auth-guard.js"></script>
+    <script src="assets/js/user-menu.js"></script>
+    <script src="assets/js/theme-manager.js"></script>
+    <script src="assets/js/widget-manager.js"></script>
+    <script src="assets/js/utils/constants.js"></script>
+    <script src="assets/js/utils/helpers.js"></script>
+    <script src="assets/js/utils/api.js"></script>
+    <script src="assets/js/utils/storage.js"></script>
+    <script src="assets/js/utils/formatter.js"></script>
+    
+    <script src="assets/js/components/base-component.js"></script>
+    <script src="assets/js/components/charts/chart-base.js"></script>
+    <script src="assets/js/components/charts/line-chart.js"></script>
+    <script src="assets/js/components/charts/candlestick-chart.js"></script>
+    <script src="assets/js/components/charts/heatmap.js"></script>
+    
+    <script src="assets/js/components/widgets/widget-base.js"></script>
+    <script src="assets/js/components/widgets/portfolio-summary.js"></script>
+    <script src="assets/js/components/widgets/market-overview.js"></script>
+    <script src="assets/js/components/widgets/watchlist.js"></script>
+    <script src="assets/js/components/widgets/performance-chart.js"></script>
+    
+    <script src="assets/js/services/auth-service.js"></script>
+    <script src="assets/js/services/portfolio-service.js"></script>
+    <script src="assets/js/services/market-service.js"></script>
+    <script src="assets/js/services/trading-service.js"></script>
+    <script src="assets/js/services/notification-service.js"></script>
+    
+    <script src="assets/js/risk-manager.js"></script>
+    
+    <script src="assets/js/pages/dashboard.js"></script>
+    <script src="assets/js/pages/portfolio.js"></script>
+    <script src="assets/js/pages/market.js"></script>
+    <script src="assets/js/pages/trading.js"></script>
+    <script src="assets/js/pages/analysis.js"></script>
+    <script src="assets/js/pages/strategies.js"></script>
+    <script src="assets/js/pages/risk.js"></script>
+    <script src="assets/js/pages/reports.js"></script>
+    
+    <script src="assets/js/core/theme-manager.js"></script>
+    <script src="assets/js/core/navigation.js"></script>
+    <script src="assets/js/core/layout.js"></script>
+    <script src="assets/js/dashboard-charts.js"></script>
+    <script src="assets/js/dashboard-interactions.js"></script>
+    <script src="assets/js/market-data-components.js"></script>
+    <script src="assets/js/technical-indicators.js"></script>
+    <script src="assets/js/portfolio-manager.js"></script>
+    <script src="assets/js/portfolio-charts.js"></script>
+    <script src="assets/js/trading-manager.js"></script>
+    <script src="assets/js/search-manager.js"></script>
+    <script src="assets/js/advanced-filters.js"></script>
+    <script src="assets/js/market-filters.js"></script>
+    <script src="assets/js/notification-manager.js"></script>
+    <script src="assets/js/alert-system.js"></script>
+    <script src="assets/js/alerts-management.js"></script>
+    <script src="assets/js/notifications-integration.js"></script>
+    <script src="assets/js/responsive-manager.js"></script>
+    <script src="assets/js/mobile-optimizations.js"></script>
+    <script src="assets/js/accessibility-manager.js"></script>
+    <script src="assets/js/accessibility-init.js"></script>
+    <script src="assets/js/performance-optimizer.js"></script>
+    <script src="assets/js/app.js"></script>
+    
+    <script>
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', () => {
+            FinAgent.init();
+        });
+    </script>
+</body>
+</html>

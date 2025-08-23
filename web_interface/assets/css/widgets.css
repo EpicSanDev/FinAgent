@@ -1,0 +1,468 @@
+/**
+ * Styles pour le système de widgets personnalisables
+ * Gestion du drag-and-drop et interface de personnalisation
+ */
+
+/* ================================
+   WIDGETS DRAGGABLES
+   ================================ */
+
+.widget[draggable="true"] {
+    cursor: move;
+    transition: transform var(--duration-fast) var(--ease-out),
+                box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.widget[draggable="true"]:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.widget.dragging {
+    opacity: 0.5;
+    transform: rotate(5deg) scale(0.95);
+    z-index: 1000;
+}
+
+/* ================================
+   ZONES DE DROP
+   ================================ */
+
+.widget-drop-zone {
+    height: 4px;
+    margin: var(--space-2) 0;
+    border-radius: 2px;
+    background: transparent;
+    transition: all var(--duration-fast) var(--ease-out);
+    opacity: 0;
+    transform: scaleY(0);
+}
+
+.widget-drop-zone.visible {
+    opacity: 1;
+    transform: scaleY(1);
+    background: var(--primary-200);
+}
+
+.widget-drop-zone.drop-zone-active {
+    height: 8px;
+    background: var(--primary-500);
+    box-shadow: 0 0 10px var(--primary-300);
+}
+
+/* ================================
+   CONTRÔLES DE WIDGETS
+   ================================ */
+
+.widget-controls {
+    position: absolute;
+    top: var(--space-2);
+    right: var(--space-2);
+    display: flex;
+    gap: var(--space-1);
+    opacity: 0;
+    transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+.widget:hover .widget-controls {
+    opacity: 1;
+}
+
+.widget-control-btn {
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: var(--border-radius-sm);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: var(--transition-colors);
+    box-shadow: var(--shadow-sm);
+}
+
+.widget-control-btn:hover {
+    background: var(--bg-secondary);
+    color: var(--primary-500);
+}
+
+.widget-control-btn.remove-btn:hover {
+    background: var(--danger-500);
+    color: white;
+}
+
+/* ================================
+   PANEL DE PERSONNALISATION
+   ================================ */
+
+.customize-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 400px;
+    height: 100vh;
+    background: var(--bg-card);
+    border-left: 1px solid var(--border-color);
+    box-shadow: var(--shadow-xl);
+    z-index: 2000;
+    transform: translateX(100%);
+    transition: transform var(--duration-normal) var(--ease-out);
+    overflow-y: auto;
+}
+
+.customize-panel.open {
+    transform: translateX(0);
+}
+
+.customize-header {
+    padding: var(--space-4);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg-secondary);
+}
+
+.customize-header h3 {
+    margin: 0;
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.btn-close {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: var(--border-radius-md);
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-colors);
+}
+
+.btn-close:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.customize-body {
+    padding: var(--space-4);
+}
+
+.customize-section {
+    margin-bottom: var(--space-6);
+}
+
+.customize-section h4 {
+    margin: 0 0 var(--space-3) 0;
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-primary);
+}
+
+/* ================================
+   WIDGETS DISPONIBLES
+   ================================ */
+
+.available-widgets {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.available-widget {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    background: var(--bg-primary);
+    transition: var(--transition-colors);
+    cursor: pointer;
+}
+
+.available-widget:hover {
+    border-color: var(--primary-300);
+    background: var(--primary-50);
+}
+
+.widget-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--border-radius-md);
+    background: var(--primary-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-600);
+    flex-shrink: 0;
+}
+
+.widget-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.widget-title {
+    font-weight: var(--font-weight-medium);
+    color: var(--text-primary);
+    margin-bottom: var(--space-1);
+}
+
+.widget-description {
+    font-size: var(--font-size-sm);
+    color: var(--text-tertiary);
+    line-height: 1.4;
+}
+
+.widget-actions {
+    display: flex;
+    gap: var(--space-1);
+}
+
+.add-widget-btn {
+    border: none;
+    background: var(--primary-500);
+    color: white;
+    border-radius: var(--border-radius-sm);
+    padding: var(--space-1) var(--space-2);
+    cursor: pointer;
+    transition: var(--transition-colors);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.add-widget-btn:hover {
+    background: var(--primary-600);
+}
+
+/* ================================
+   ACTIONS DE PERSONNALISATION
+   ================================ */
+
+.customize-actions {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+}
+
+.customize-actions .btn {
+    flex: 1;
+    min-width: 120px;
+}
+
+/* ================================
+   BOUTON DE PERSONNALISATION
+   ================================ */
+
+.customize-dashboard-btn {
+    position: relative;
+}
+
+.customize-dashboard-btn::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 8px;
+    height: 8px;
+    background: var(--primary-500);
+    border-radius: 50%;
+    opacity: 0;
+    transform: scale(0);
+    transition: all var(--duration-fast) var(--ease-out);
+}
+
+.customize-dashboard-btn.has-changes::after {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* ================================
+   WIDGETS MINIMISÉS
+   ================================ */
+
+.widget.minimized .widget-body {
+    display: none;
+}
+
+.widget.minimized {
+    min-height: auto;
+}
+
+.widget.minimized .widget-header {
+    border-bottom: none;
+}
+
+/* ================================
+   CATÉGORIES DE WIDGETS
+   ================================ */
+
+.widget-category {
+    margin-bottom: var(--space-4);
+}
+
+.widget-category-title {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: var(--space-2);
+    padding-bottom: var(--space-1);
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* ================================
+   RESPONSIVE
+   ================================ */
+
+@media (max-width: 768px) {
+    .customize-panel {
+        width: 100vw;
+        max-width: 400px;
+    }
+    
+    .widget-controls {
+        opacity: 1; /* Toujours visible sur mobile */
+    }
+    
+    .available-widget {
+        padding: var(--space-2);
+    }
+    
+    .widget-icon {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .customize-actions {
+        flex-direction: column;
+    }
+    
+    .customize-actions .btn {
+        min-width: auto;
+    }
+}
+
+/* ================================
+   ANIMATIONS
+   ================================ */
+
+@keyframes widget-add {
+    0% {
+        opacity: 0;
+        transform: scale(0.8) translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.widget.newly-added {
+    animation: widget-add var(--duration-normal) var(--ease-out);
+}
+
+@keyframes widget-remove {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+}
+
+.widget.removing {
+    animation: widget-remove var(--duration-fast) var(--ease-in);
+}
+
+/* ================================
+   INDICATEURS VISUELS
+   ================================ */
+
+.widget-size-indicator {
+    position: absolute;
+    top: var(--space-1);
+    left: var(--space-1);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--gray-400);
+}
+
+.widget[data-size="sm"] .widget-size-indicator {
+    background: var(--success-500);
+}
+
+.widget[data-size="md"] .widget-size-indicator {
+    background: var(--warning-500);
+}
+
+.widget[data-size="lg"] .widget-size-indicator {
+    background: var(--danger-500);
+}
+
+/* ================================
+   PRÉVISUALISATION
+   ================================ */
+
+.widget-preview {
+    border: 2px dashed var(--border-color);
+    background: var(--bg-secondary);
+    border-radius: var(--border-radius-md);
+    padding: var(--space-4);
+    text-align: center;
+    color: var(--text-tertiary);
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-colors);
+}
+
+.widget-preview:hover {
+    border-color: var(--primary-300);
+    background: var(--primary-50);
+    color: var(--primary-600);
+}
+
+.widget-preview i {
+    font-size: 2rem;
+    margin-bottom: var(--space-2);
+}
+
+/* ================================
+   THÈME SOMBRE
+   ================================ */
+
+[data-theme="dark"] .available-widget:hover {
+    border-color: var(--primary-400);
+    background: var(--primary-900);
+}
+
+[data-theme="dark"] .widget-icon {
+    background: var(--primary-800);
+    color: var(--primary-300);
+}
+
+[data-theme="dark"] .widget-preview:hover {
+    border-color: var(--primary-400);
+    background: var(--primary-900);
+    color: var(--primary-300);
+}

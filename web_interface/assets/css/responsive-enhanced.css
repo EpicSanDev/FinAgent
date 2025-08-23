@@ -1,0 +1,716 @@
+/**
+ * Système responsive avancé pour FinAgent
+ * Optimisations pour mobile, tablette, desktop et grands écrans
+ */
+
+/* ================================
+   VARIABLES RESPONSIVE AVANCÉES
+   ================================ */
+
+:root {
+    /* Breakpoints étendus */
+    --breakpoint-xs: 320px;
+    --breakpoint-sm: 576px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 992px;
+    --breakpoint-xl: 1200px;
+    --breakpoint-xxl: 1400px;
+    --breakpoint-xxxl: 1600px;
+    
+    /* Container fluides */
+    --container-xs: 100%;
+    --container-sm: 540px;
+    --container-md: 720px;
+    --container-lg: 960px;
+    --container-xl: 1140px;
+    --container-xxl: 1320px;
+    --container-xxxl: 1520px;
+    
+    /* Spacings responsifs */
+    --spacing-xs-mobile: 8px;
+    --spacing-sm-mobile: 12px;
+    --spacing-md-mobile: 16px;
+    --spacing-lg-mobile: 24px;
+    --spacing-xl-mobile: 32px;
+    
+    --spacing-xs-tablet: 12px;
+    --spacing-sm-tablet: 16px;
+    --spacing-md-tablet: 24px;
+    --spacing-lg-tablet: 32px;
+    --spacing-xl-tablet: 48px;
+    
+    --spacing-xs-desktop: 16px;
+    --spacing-sm-desktop: 24px;
+    --spacing-md-desktop: 32px;
+    --spacing-lg-desktop: 48px;
+    --spacing-xl-desktop: 64px;
+}
+
+/* ================================
+   UTILITAIRES RESPONSIVE
+   ================================ */
+
+/* Classes de visibilité */
+.d-none { display: none !important; }
+.d-block { display: block !important; }
+.d-inline { display: inline !important; }
+.d-inline-block { display: inline-block !important; }
+.d-flex { display: flex !important; }
+.d-grid { display: grid !important; }
+
+/* Classes responsive de visibilité */
+@media (max-width: 575.98px) {
+    .d-xs-none { display: none !important; }
+    .d-xs-block { display: block !important; }
+    .d-xs-flex { display: flex !important; }
+    .d-xs-grid { display: grid !important; }
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+    .d-sm-none { display: none !important; }
+    .d-sm-block { display: block !important; }
+    .d-sm-flex { display: flex !important; }
+    .d-sm-grid { display: grid !important; }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .d-md-none { display: none !important; }
+    .d-md-block { display: block !important; }
+    .d-md-flex { display: flex !important; }
+    .d-md-grid { display: grid !important; }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+    .d-lg-none { display: none !important; }
+    .d-lg-block { display: block !important; }
+    .d-lg-flex { display: flex !important; }
+    .d-lg-grid { display: grid !important; }
+}
+
+@media (min-width: 1200px) {
+    .d-xl-none { display: none !important; }
+    .d-xl-block { display: block !important; }
+    .d-xl-flex { display: flex !important; }
+    .d-xl-grid { display: grid !important; }
+}
+
+/* ================================
+   LAYOUT RESPONSIVE
+   ================================ */
+
+/* App Container */
+.app-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header responsive */
+.app-header {
+    height: 64px;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+@media (max-width: 767.98px) {
+    .app-header {
+        height: 56px;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+    
+    .header-center {
+        display: none;
+    }
+    
+    .header-right {
+        gap: var(--spacing-xs);
+    }
+    
+    .header-btn {
+        width: 40px;
+        height: 40px;
+        padding: var(--spacing-xs);
+    }
+    
+    .user-menu .user-name {
+        display: none;
+    }
+    
+    .user-avatar {
+        padding: var(--spacing-xs);
+    }
+}
+
+/* Sidebar responsive */
+.app-sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.app-sidebar.collapsed {
+    width: 64px;
+}
+
+@media (max-width: 991.98px) {
+    .app-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        z-index: 1100;
+        transform: translateX(-100%);
+        box-shadow: var(--shadow-xl);
+    }
+    
+    .app-sidebar.mobile-open {
+        transform: translateX(0);
+    }
+    
+    .app-sidebar.collapsed {
+        width: 280px;
+    }
+}
+
+/* Main content responsive */
+.app-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    transition: all 0.3s ease;
+}
+
+@media (max-width: 991.98px) {
+    .app-main {
+        margin-left: 0;
+    }
+}
+
+/* Content area */
+.main-content {
+    flex: 1;
+    padding: var(--spacing-lg);
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+@media (max-width: 767.98px) {
+    .main-content {
+        padding: var(--spacing-md);
+    }
+}
+
+@media (max-width: 575.98px) {
+    .main-content {
+        padding: var(--spacing-sm);
+    }
+}
+
+/* ================================
+   GRILLES RESPONSIVE
+   ================================ */
+
+/* Grid système */
+.grid {
+    display: grid;
+    gap: var(--spacing-md);
+}
+
+.grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+.grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
+.grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
+
+/* Grid responsive */
+@media (max-width: 575.98px) {
+    .grid-cols-2,
+    .grid-cols-3,
+    .grid-cols-4,
+    .grid-cols-5,
+    .grid-cols-6 {
+        grid-template-columns: 1fr;
+    }
+    
+    .grid-xs-1 { grid-template-columns: repeat(1, 1fr); }
+    .grid-xs-2 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+    .grid-cols-3,
+    .grid-cols-4,
+    .grid-cols-5,
+    .grid-cols-6 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .grid-sm-1 { grid-template-columns: repeat(1, 1fr); }
+    .grid-sm-2 { grid-template-columns: repeat(2, 1fr); }
+    .grid-sm-3 { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .grid-cols-4,
+    .grid-cols-5,
+    .grid-cols-6 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .grid-md-1 { grid-template-columns: repeat(1, 1fr); }
+    .grid-md-2 { grid-template-columns: repeat(2, 1fr); }
+    .grid-md-3 { grid-template-columns: repeat(3, 1fr); }
+    .grid-md-4 { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+    .grid-lg-1 { grid-template-columns: repeat(1, 1fr); }
+    .grid-lg-2 { grid-template-columns: repeat(2, 1fr); }
+    .grid-lg-3 { grid-template-columns: repeat(3, 1fr); }
+    .grid-lg-4 { grid-template-columns: repeat(4, 1fr); }
+    .grid-lg-5 { grid-template-columns: repeat(5, 1fr); }
+    .grid-lg-6 { grid-template-columns: repeat(6, 1fr); }
+}
+
+/* ================================
+   COMPOSANTS RESPONSIVE
+   ================================ */
+
+/* Cards responsives */
+.card {
+    border-radius: var(--border-radius-lg);
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+@media (max-width: 767.98px) {
+    .card {
+        border-radius: var(--border-radius);
+        margin-bottom: var(--spacing-sm);
+    }
+}
+
+/* Tables responsives */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 767.98px) {
+    .table-responsive {
+        font-size: var(--font-size-sm);
+    }
+    
+    .table-responsive table {
+        min-width: 600px;
+    }
+    
+    .table-responsive th,
+    .table-responsive td {
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+}
+
+/* Buttons responsives */
+.btn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+@media (max-width: 767.98px) {
+    .btn {
+        padding: var(--spacing-xs) var(--spacing-sm);
+        font-size: var(--font-size-xs);
+    }
+    
+    .btn-group {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .btn-group .btn {
+        border-radius: var(--border-radius);
+        margin-bottom: var(--spacing-xs);
+    }
+}
+
+/* Forms responsives */
+.form-group {
+    margin-bottom: var(--spacing-md);
+}
+
+.form-control {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-sm);
+    background: var(--surface-color);
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+}
+
+@media (max-width: 767.98px) {
+    .form-control {
+        padding: var(--spacing-sm);
+        font-size: var(--font-size-sm);
+    }
+    
+    .form-row {
+        flex-direction: column;
+    }
+    
+    .form-row .form-group {
+        margin-right: 0;
+        margin-bottom: var(--spacing-sm);
+    }
+}
+
+/* ================================
+   WIDGETS DASHBOARD RESPONSIVE
+   ================================ */
+
+.widget {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-lg);
+    transition: all 0.3s ease;
+}
+
+.widget-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-md);
+}
+
+.widget-title {
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+    margin: 0;
+}
+
+@media (max-width: 767.98px) {
+    .widget {
+        padding: var(--spacing-md);
+        border-radius: var(--border-radius);
+    }
+    
+    .widget-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
+    
+    .widget-title {
+        font-size: var(--font-size-sm);
+    }
+    
+    .widget-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+
+/* ================================
+   MODALES RESPONSIVE
+   ================================ */
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-lg);
+}
+
+.modal-dialog {
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    background: var(--surface-color);
+    border-radius: var(--border-radius-xl);
+    box-shadow: var(--shadow-2xl);
+    overflow: hidden;
+}
+
+@media (max-width: 767.98px) {
+    .modal {
+        padding: var(--spacing-sm);
+        align-items: flex-end;
+    }
+    
+    .modal-dialog {
+        max-width: none;
+        max-height: 95vh;
+        border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+    }
+    
+    .modal-header {
+        padding: var(--spacing-md);
+    }
+    
+    .modal-body {
+        padding: var(--spacing-md);
+    }
+    
+    .modal-footer {
+        padding: var(--spacing-md);
+        flex-direction: column-reverse;
+        gap: var(--spacing-sm);
+    }
+    
+    .modal-footer .btn {
+        width: 100%;
+    }
+}
+
+/* ================================
+   NAVIGATION RESPONSIVE
+   ================================ */
+
+.nav-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.nav-tab {
+    background: transparent;
+    border: none;
+    padding: var(--spacing-md) var(--spacing-lg);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    position: relative;
+    flex-shrink: 0;
+}
+
+@media (max-width: 767.98px) {
+    .nav-tabs {
+        border-bottom: none;
+        background: var(--background-secondary);
+        border-radius: var(--border-radius);
+        padding: var(--spacing-xs);
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .nav-tab {
+        padding: var(--spacing-sm) var(--spacing-md);
+        border-radius: var(--border-radius);
+        font-size: var(--font-size-sm);
+        flex: 1;
+        text-align: center;
+    }
+    
+    .nav-tab.active {
+        background: var(--primary-color);
+        color: white;
+    }
+}
+
+/* ================================
+   TOOLTIPS RESPONSIVE
+   ================================ */
+
+.tooltip {
+    position: absolute;
+    z-index: 1000;
+    background: var(--text-primary);
+    color: var(--surface-color);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-xs);
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.2s ease;
+}
+
+@media (max-width: 767.98px) {
+    .tooltip {
+        display: none; /* Masquer les tooltips sur mobile */
+    }
+}
+
+/* ================================
+   CHARTS RESPONSIVE
+   ================================ */
+
+.chart-container {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+}
+
+@media (max-width: 767.98px) {
+    .chart-container {
+        height: 300px;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .chart-container {
+        height: 250px;
+    }
+}
+
+/* ================================
+   SPACING RESPONSIVE
+   ================================ */
+
+/* Marges responsives */
+.m-0 { margin: 0 !important; }
+.m-1 { margin: var(--spacing-xs) !important; }
+.m-2 { margin: var(--spacing-sm) !important; }
+.m-3 { margin: var(--spacing-md) !important; }
+.m-4 { margin: var(--spacing-lg) !important; }
+.m-5 { margin: var(--spacing-xl) !important; }
+
+.mt-0 { margin-top: 0 !important; }
+.mt-1 { margin-top: var(--spacing-xs) !important; }
+.mt-2 { margin-top: var(--spacing-sm) !important; }
+.mt-3 { margin-top: var(--spacing-md) !important; }
+.mt-4 { margin-top: var(--spacing-lg) !important; }
+.mt-5 { margin-top: var(--spacing-xl) !important; }
+
+.mb-0 { margin-bottom: 0 !important; }
+.mb-1 { margin-bottom: var(--spacing-xs) !important; }
+.mb-2 { margin-bottom: var(--spacing-sm) !important; }
+.mb-3 { margin-bottom: var(--spacing-md) !important; }
+.mb-4 { margin-bottom: var(--spacing-lg) !important; }
+.mb-5 { margin-bottom: var(--spacing-xl) !important; }
+
+.ml-0 { margin-left: 0 !important; }
+.ml-1 { margin-left: var(--spacing-xs) !important; }
+.ml-2 { margin-left: var(--spacing-sm) !important; }
+.ml-3 { margin-left: var(--spacing-md) !important; }
+.ml-4 { margin-left: var(--spacing-lg) !important; }
+.ml-5 { margin-left: var(--spacing-xl) !important; }
+
+.mr-0 { margin-right: 0 !important; }
+.mr-1 { margin-right: var(--spacing-xs) !important; }
+.mr-2 { margin-right: var(--spacing-sm) !important; }
+.mr-3 { margin-right: var(--spacing-md) !important; }
+.mr-4 { margin-right: var(--spacing-lg) !important; }
+.mr-5 { margin-right: var(--spacing-xl) !important; }
+
+/* Paddings responsifs */
+.p-0 { padding: 0 !important; }
+.p-1 { padding: var(--spacing-xs) !important; }
+.p-2 { padding: var(--spacing-sm) !important; }
+.p-3 { padding: var(--spacing-md) !important; }
+.p-4 { padding: var(--spacing-lg) !important; }
+.p-5 { padding: var(--spacing-xl) !important; }
+
+/* ================================
+   PRINT STYLES
+   ================================ */
+
+@media print {
+    * {
+        background: white !important;
+        color: black !important;
+        box-shadow: none !important;
+    }
+    
+    .app-sidebar,
+    .app-header,
+    .btn,
+    .modal,
+    .tooltip,
+    .alert {
+        display: none !important;
+    }
+    
+    .app-main {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .chart-container {
+        height: 300px !important;
+    }
+    
+    .page-break {
+        page-break-before: always;
+    }
+}
+
+/* ================================
+   ORIENTATION RESPONSIVE
+   ================================ */
+
+@media (orientation: landscape) and (max-height: 600px) {
+    .app-header {
+        height: 48px;
+    }
+    
+    .modal-dialog {
+        max-height: 85vh;
+    }
+}
+
+/* ================================
+   HIGH DPI / RETINA DISPLAYS
+   ================================ */
+
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .icon,
+    .logo {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+}
+
+/* ================================
+   REDUCED MOTION
+   ================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ================================
+   FOCUS MANAGEMENT POUR MOBILE
+   ================================ */
+
+@media (max-width: 767.98px) {
+    input:focus,
+    textarea:focus,
+    select:focus {
+        font-size: 16px; /* Empêche le zoom sur iOS */
+    }
+}

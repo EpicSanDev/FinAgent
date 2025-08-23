@@ -1,0 +1,662 @@
+/**
+ * Système d'accessibilité pour FinAgent
+ * Conforme aux directives WCAG 2.1 AA
+ */
+
+/* ================================
+   VARIABLES D'ACCESSIBILITÉ
+   ================================ */
+
+:root {
+    /* Ratios de contraste conformes WCAG */
+    --contrast-ratio-normal: 4.5; /* AA normal text */
+    --contrast-ratio-large: 3.0;  /* AA large text */
+    --contrast-ratio-aaa: 7.0;    /* AAA text */
+    
+    /* Focus indicators */
+    --focus-outline-width: 2px;
+    --focus-outline-style: solid;
+    --focus-outline-color: var(--primary-color);
+    --focus-outline-offset: 2px;
+    
+    /* High contrast mode colors */
+    --hc-background: #000000;
+    --hc-text: #ffffff;
+    --hc-border: #ffffff;
+    --hc-focus: #ffff00;
+    --hc-link: #00ffff;
+    --hc-visited: #ff00ff;
+    
+    /* Motion preferences */
+    --animation-duration-normal: 0.3s;
+    --animation-duration-reduced: 0.01ms;
+}
+
+/* ================================
+   FOCUS MANAGEMENT
+   ================================ */
+
+/* Focus visible pour tous les éléments interactifs */
+*:focus {
+    outline: var(--focus-outline-width) var(--focus-outline-style) var(--focus-outline-color);
+    outline-offset: var(--focus-outline-offset);
+}
+
+/* Focus spécifique pour les boutons */
+.btn:focus,
+button:focus {
+    outline: var(--focus-outline-width) var(--focus-outline-style) var(--focus-outline-color);
+    outline-offset: var(--focus-outline-offset);
+    box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb), 0.3);
+}
+
+/* Focus pour les liens */
+a:focus {
+    outline: var(--focus-outline-width) var(--focus-outline-style) var(--focus-outline-color);
+    outline-offset: var(--focus-outline-offset);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+}
+
+/* Focus pour les champs de formulaire */
+input:focus,
+textarea:focus,
+select:focus {
+    outline: var(--focus-outline-width) var(--focus-outline-style) var(--focus-outline-color);
+    outline-offset: var(--focus-outline-offset);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.2);
+}
+
+/* Focus pour les éléments personnalisés */
+.focusable:focus,
+[tabindex]:focus {
+    outline: var(--focus-outline-width) var(--focus-outline-style) var(--focus-outline-color);
+    outline-offset: var(--focus-outline-offset);
+}
+
+/* Skip to content */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 6px;
+    background: var(--primary-color);
+    color: white;
+    padding: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 0 0 4px 4px;
+    z-index: 10000;
+    transition: top 0.3s;
+}
+
+.skip-link:focus {
+    top: 0;
+    outline: 2px solid white;
+    outline-offset: 2px;
+}
+
+/* ================================
+   CONTRASTE ÉLEVÉ
+   ================================ */
+
+/* Mode contraste élevé */
+@media (prefers-contrast: high) {
+    :root {
+        --text-primary: #000000;
+        --text-secondary: #000000;
+        --background-primary: #ffffff;
+        --background-secondary: #f5f5f5;
+        --border-color: #000000;
+        --primary-color: #0000ff;
+        --success-color: #008000;
+        --warning-color: #ff8c00;
+        --danger-color: #ff0000;
+    }
+    
+    .btn {
+        border: 2px solid currentColor;
+        font-weight: bold;
+    }
+    
+    .card,
+    .widget {
+        border: 2px solid var(--border-color);
+    }
+    
+    .table th,
+    .table td {
+        border: 1px solid var(--border-color);
+    }
+}
+
+/* Classe pour forcer le mode contraste élevé */
+.high-contrast {
+    --text-primary: var(--hc-text);
+    --text-secondary: var(--hc-text);
+    --background-primary: var(--hc-background);
+    --background-secondary: var(--hc-background);
+    --surface-color: var(--hc-background);
+    --border-color: var(--hc-border);
+    --focus-outline-color: var(--hc-focus);
+}
+
+.high-contrast .btn {
+    border: 2px solid var(--hc-border);
+    background: var(--hc-background);
+    color: var(--hc-text);
+    font-weight: bold;
+}
+
+.high-contrast .btn:hover,
+.high-contrast .btn:focus {
+    background: var(--hc-text);
+    color: var(--hc-background);
+}
+
+.high-contrast a {
+    color: var(--hc-link);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+}
+
+.high-contrast a:visited {
+    color: var(--hc-visited);
+}
+
+.high-contrast .card,
+.high-contrast .widget,
+.high-contrast .modal-content {
+    border: 2px solid var(--hc-border);
+    background: var(--hc-background);
+}
+
+/* ================================
+   RÉDUCTION DES ANIMATIONS
+   ================================ */
+
+/* Respect des préférences de mouvement réduit */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: var(--animation-duration-reduced) !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: var(--animation-duration-reduced) !important;
+        scroll-behavior: auto !important;
+    }
+    
+    /* Désactiver les transformations d'animation */
+    .widget.drag-preview,
+    .modal-dialog,
+    .dropdown-menu,
+    .tooltip {
+        transform: none !important;
+    }
+    
+    /* Conserver les indicateurs de focus */
+    :focus {
+        transition: outline 0.1s !important;
+    }
+}
+
+/* Classe pour désactiver manuellement les animations */
+.no-animations *,
+.no-animations *::before,
+.no-animations *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+}
+
+/* ================================
+   NAVIGATION CLAVIER
+   ================================ */
+
+/* Indicateurs de navigation clavier */
+.keyboard-navigation .focusable {
+    position: relative;
+}
+
+.keyboard-navigation .focusable::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border: 2px solid transparent;
+    border-radius: inherit;
+    pointer-events: none;
+    transition: border-color 0.2s;
+}
+
+.keyboard-navigation .focusable:focus::after {
+    border-color: var(--focus-outline-color);
+}
+
+/* Navigation par tabulation visible */
+.tab-navigation-visible [tabindex="0"]:focus,
+.tab-navigation-visible button:focus,
+.tab-navigation-visible a:focus,
+.tab-navigation-visible input:focus,
+.tab-navigation-visible select:focus,
+.tab-navigation-visible textarea:focus {
+    box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb), 0.5);
+}
+
+/* ================================
+   LECTEURS D'ÉCRAN
+   ================================ */
+
+/* Classe pour masquer visuellement mais garder accessible */
+.sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+/* Afficher au focus pour les utilisateurs clavier */
+.sr-only-focusable:focus {
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    padding: inherit !important;
+    margin: inherit !important;
+    overflow: visible !important;
+    clip: auto !important;
+    white-space: normal !important;
+}
+
+/* Descriptions pour lecteurs d'écran */
+.sr-description {
+    font-size: 0;
+    line-height: 0;
+    opacity: 0;
+    position: absolute;
+    z-index: -1;
+}
+
+/* ================================
+   FORMULAIRES ACCESSIBLES
+   ================================ */
+
+/* Labels obligatoires */
+.required-field::after {
+    content: " *";
+    color: var(--danger-color);
+    font-weight: bold;
+    speak: literal;
+}
+
+/* Messages d'erreur */
+.form-error {
+    color: var(--danger-color);
+    font-size: var(--font-size-sm);
+    margin-top: var(--space-2);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.form-error::before {
+    content: "⚠";
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+/* États de validation */
+.form-control.invalid {
+    border-color: var(--danger-color);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23dc3545' d='M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z'/%3E%3Cpath fill='%23dc3545' d='M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
+}
+
+.form-control.valid {
+    border-color: var(--success-color);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23198754' d='M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z'/%3E%3Cpath fill='%23198754' d='M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
+}
+
+/* ================================
+   BOUTONS ACCESSIBLES
+   ================================ */
+
+/* Taille minimale pour les boutons */
+.btn {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+}
+
+/* Boutons avec icônes seulement */
+.btn-icon-only {
+    padding: var(--space-3);
+}
+
+.btn-icon-only .sr-only {
+    /* Assurer que le texte du lecteur d'écran est présent */
+}
+
+/* États de bouton pour lecteurs d'écran */
+.btn[aria-pressed="true"] {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn[aria-expanded="true"]::after {
+    content: " (ouvert)";
+    font-size: 0;
+    speak: literal;
+}
+
+.btn[aria-expanded="false"]::after {
+    content: " (fermé)";
+    font-size: 0;
+    speak: literal;
+}
+
+/* ================================
+   TABLEAUX ACCESSIBLES
+   ================================ */
+
+/* En-têtes de tableau */
+.table th {
+    font-weight: var(--font-weight-semibold);
+    background-color: var(--background-secondary);
+}
+
+/* Lignes alternées pour meilleure lisibilité */
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(var(--text-primary-rgb), 0.05);
+}
+
+/* Tri de tableau accessible */
+.table th[aria-sort]::after {
+    content: "";
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-left: var(--space-2);
+    vertical-align: middle;
+}
+
+.table th[aria-sort="ascending"]::after {
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-bottom: 4px solid currentColor;
+}
+
+.table th[aria-sort="descending"]::after {
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid currentColor;
+}
+
+.table th[aria-sort="none"]::after {
+    border: 4px solid transparent;
+    border-bottom-color: rgba(var(--text-secondary-rgb), 0.4);
+}
+
+/* ================================
+   NOTIFICATIONS ACCESSIBLES
+   ================================ */
+
+/* Région live pour les annonces */
+.live-region {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+/* Notifications toast accessibles */
+.toast {
+    role: alert;
+    aria-live: assertive;
+    aria-atomic: true;
+}
+
+.toast.success {
+    role: status;
+    aria-live: polite;
+}
+
+/* ================================
+   MODALES ACCESSIBLES
+   ================================ */
+
+/* Fond de modale avec attributs appropriés */
+.modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Focus trap dans les modales */
+.modal[aria-hidden="false"] {
+    display: flex;
+}
+
+.modal[aria-hidden="true"] {
+    display: none;
+}
+
+/* En-têtes de modale */
+.modal-title {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    line-height: 1.4;
+}
+
+/* ================================
+   GRAPHIQUES ACCESSIBLES
+   ================================ */
+
+/* Descriptions alternatives pour graphiques */
+.chart-container {
+    position: relative;
+}
+
+.chart-description {
+    position: absolute;
+    left: -10000px;
+    font-size: 0;
+}
+
+.chart-container:focus .chart-description,
+.chart-container:focus-within .chart-description {
+    position: static;
+    font-size: var(--font-size-sm);
+    background: var(--surface-color);
+    padding: var(--space-4);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    margin-top: var(--space-2);
+}
+
+/* ================================
+   TAILLES DE POLICE
+   ================================ */
+
+/* Support des préférences de taille de police */
+@media (prefers-reduced-data: reduce) {
+    /* Réduire la taille des images et graphiques */
+    .chart-container {
+        max-height: 200px;
+    }
+    
+    img {
+        max-width: 100px;
+    }
+}
+
+/* Classes utilitaires pour tailles de police */
+.font-size-small { font-size: var(--font-size-sm); }
+.font-size-normal { font-size: var(--font-size-base); }
+.font-size-large { font-size: var(--font-size-lg); }
+.font-size-extra-large { font-size: var(--font-size-xl); }
+
+/* ================================
+   RESPONSIVE POUR ACCESSIBILITÉ
+   ================================ */
+
+/* Adaptation mobile pour l'accessibilité */
+@media (max-width: 767.98px) {
+    /* Boutons plus grands sur mobile */
+    .btn {
+        min-height: 48px;
+        font-size: var(--font-size-base);
+        padding: var(--space-3) var(--space-4);
+    }
+    
+    /* Champs de formulaire plus grands */
+    .form-control {
+        min-height: 48px;
+        font-size: var(--font-size-base);
+        padding: var(--space-3);
+    }
+    
+    /* Focus plus visible sur mobile */
+    :focus {
+        outline-width: 3px;
+        outline-offset: 3px;
+    }
+}
+
+/* ================================
+   MODE IMPRESSION ACCESSIBLE
+   ================================ */
+
+@media print {
+    /* Assurer un bon contraste en impression */
+    * {
+        background: white !important;
+        color: black !important;
+    }
+    
+    /* Afficher les URLs des liens */
+    a[href]::after {
+        content: " (" attr(href) ")";
+        font-size: 0.8em;
+        color: #666;
+    }
+    
+    /* Masquer les éléments interactifs */
+    .btn,
+    .form-control,
+    .modal,
+    .tooltip {
+        display: none !important;
+    }
+    
+    /* Garder les descriptions textuelles */
+    .sr-only {
+        position: static !important;
+        width: auto !important;
+        height: auto !important;
+        clip: auto !important;
+        overflow: visible !important;
+    }
+}
+
+/* ================================
+   ANIMATIONS RESPECTUEUSES
+   ================================ */
+
+/* Animations qui respectent les préférences utilisateur */
+.respectful-animation {
+    animation-duration: var(--animation-duration-normal);
+    transition-duration: var(--animation-duration-normal);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .respectful-animation {
+        animation-duration: var(--animation-duration-reduced);
+        transition-duration: var(--animation-duration-reduced);
+    }
+}
+
+/* ================================
+   UTILITAIRES D'ACCESSIBILITÉ
+   ================================ */
+
+/* Classe pour rendre un élément focusable */
+.focusable {
+    outline: none;
+    cursor: pointer;
+}
+
+.focusable:focus {
+    outline: var(--focus-outline-width) var(--focus-outline-style) var(--focus-outline-color);
+    outline-offset: var(--focus-outline-offset);
+}
+
+/* Classe pour les zones cliquables étendues */
+.click-area-extended {
+    position: relative;
+}
+
+.click-area-extended::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    cursor: pointer;
+}
+
+/* Indicateur de chargement accessible */
+.loading-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.loading-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--border-color);
+    border-top: 2px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .loading-spinner {
+        animation: none;
+        border-top-color: var(--primary-color);
+    }
+    
+    .loading-spinner::after {
+        content: "...";
+        position: absolute;
+        animation: dots 1s linear infinite;
+    }
+}
+
+@keyframes dots {
+    0%, 20% { content: "."; }
+    40% { content: ".."; }
+    60%, 100% { content: "..."; }
+}
