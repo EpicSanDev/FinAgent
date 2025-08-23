@@ -36,6 +36,7 @@ yfinance = "^0.2.18"
 openai = "^1.12.0"
 httpx = "^0.27.0"
 tenacity = "^8.2.3"
+ollama = "^0.2.1"
 
 # Database & Persistence
 sqlalchemy = "^2.0.25"

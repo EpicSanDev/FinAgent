@@ -1,419 +1,403 @@
 """
-Configuration globale pytest pour FinAgent.
+Configuration commune pour les tests FinAgent.
 
-Ce module contient toutes les fixtures globales et la configuration
-des tests pour l'ensemble de la suite de tests FinAgent.
+Ce fichier contient les fixtures et configurations partagées
+pour tous les tests du projet.
 """
 
-import asyncio
-import os
-import sys
-import tempfile
-from datetime import datetime, timedelta
-from decimal import Decimal
-from pathlib import Path
-from typing import Dict, Any, AsyncGenerator, Generator
-from unittest.mock import Mock, AsyncMock
-from uuid import uuid4
-
 import pytest
-import pytest_asyncio
-from httpx import AsyncClient
-from freezegun import freeze_time
+import asyncio
+from unittest.mock import AsyncMock, MagicMock
+from typing import Dict, Any, List
+import tempfile
+import os
 
-# Ajout du répertoire racine au path pour les imports
-ROOT_DIR = Path(__file__).parent.parent
-sys.path.insert(0, str(ROOT_DIR))
+from finagent.ai.models.base import ModelType, ProviderType
+from finagent.ai.config import AIConfig, OllamaConfig, ClaudeConfig, FallbackStrategy
+from finagent.ai.providers.ollama_provider import OllamaProvider, OllamaModelInfo
+from finagent.ai.services.model_discovery_service import ModelDiscoveryService
 
-from finagent.core.errors.exceptions import (
-    FinAgentException,
-    APIConnectionError,
-    DataValidationError,
-    ConfigurationError
-)
-from finagent.ai.models.base import (
-    AIRequest,
-    AIResponse, 
-    ModelType,
-    ConfidenceLevel
-)
-
-
-# ============================================================================
-# CONFIGURATION GLOBALE
-# ============================================================================
-
-def pytest_configure(config):
-    """Configuration globale pytest."""
-    # Définir les variables d'environnement pour les tests
-    os.environ.setdefault("FINAGENT_TEST_MODE", "true")
-    os.environ.setdefault("FINAGENT_LOG_LEVEL", "ERROR")
-    os.environ.setdefault("FINAGENT_DB_URL", "sqlite:///:memory:")
-    
-    # Désactiver les appels API réels en mode test
-    os.environ.setdefault("FINAGENT_DISABLE_EXTERNAL_APIS", "true")
-
-
-def pytest_collection_modifyitems(config, items):
-    """Modifier les éléments de collection de tests."""
-    # Marquer automatiquement les tests selon leurs noms
-    for item in items:
-        # Tests lents
-        if "slow" in item.nodeid or "integration" in item.nodeid:
-            item.add_marker(pytest.mark.slow)
-            
-        # Tests d'API
-        if "api" in item.nodeid or "openbb" in item.nodeid or "claude" in item.nodeid:
-            item.add_marker(pytest.mark.api)
-            
-        # Tests CLI
-        if "cli" in item.nodeid:
-            item.add_marker(pytest.mark.cli)
-
-
-# ============================================================================
-# FIXTURES DE BASE
-# ============================================================================
 
 @pytest.fixture(scope="session")
 def event_loop():
-    """Fixture pour loop d'événements asyncio partagé."""
-    policy = asyncio.get_event_loop_policy()
-    loop = policy.new_event_loop()
+    """Event loop pour les tests asyncio."""
+    loop = asyncio.new_event_loop()
     yield loop
     loop.close()
 
 
 @pytest.fixture
-def temp_dir():
-    """Répertoire temporaire pour les tests."""
+def temp_config_dir():
+    """Répertoire temporaire pour les configurations de test."""
     with tempfile.TemporaryDirectory() as temp_dir:
-        yield Path(temp_dir)
+        yield temp_dir
 
 
 @pytest.fixture
-def mock_config():
-    """Configuration mock pour les tests."""
+def sample_ollama_config():
+    """Configuration Ollama de test."""
+    return OllamaConfig(
+        host="localhost",
+        port=11434,
+        timeout=30,
+        auto_pull=True,
+        max_retries=3,
+        retry_delay=1.0
+    )
+
+
+@pytest.fixture
+def sample_claude_config():
+    """Configuration Claude de test."""
+    return ClaudeConfig(
+        api_key="test-api-key",
+        base_url="https://api.anthropic.com",
+        timeout=60,
+        max_retries=3,
+        retry_delay=2.0
+    )
+
+
+@pytest.fixture
+def sample_ai_config(sample_ollama_config, sample_claude_config):
+    """Configuration AI complète de test."""
+    return AIConfig(
+        ollama=sample_ollama_config,
+        claude=sample_claude_config,
+        preferred_provider=ProviderType.OLLAMA,
+        fallback_strategy=FallbackStrategy.AUTO,
+        enable_auto_discovery=True,
+        discovery_refresh_interval=300
+    )
+
+
+@pytest.fixture
+def mock_ollama_models_response():
+    """Réponse mockée pour la liste des modèles Ollama."""
     return {
-        "openbb": {
-            "api_key": "test_openbb_key",
-            "base_url": "https://api.test.openbb.co"
-        },
-        "claude": {
-            "api_key": "test_claude_key", 
-            "base_url": "https://api.test.openrouter.ai"
-        },
-        "database": {
-            "url": "sqlite:///:memory:"
-        },
-        "logging": {
-            "level": "ERROR"
+        "models": [
+            {
+                "name": "llama3.1:8b",
+                "size": 4600000000,
+                "digest": "sha256:abc123",
+                "details": {
+                    "format": "gguf",
+                    "family": "llama",
+                    "families": ["llama"],
+                    "parameter_size": "8B",
+                    "quantization_level": "Q4_0"
+                },
+                "modified_at": "2024-01-01T00:00:00Z"
+            },
+            {
+                "name": "mistral:7b",
+                "size": 3800000000,
+                "digest": "sha256:def456",
+                "details": {
+                    "format": "gguf",
+                    "family": "mistral",
+                    "families": ["mistral"],
+                    "parameter_size": "7B",
+                    "quantization_level": "Q4_0"
+                },
+                "modified_at": "2024-01-01T00:00:00Z"
+            },
+            {
+                "name": "codellama:7b",
+                "size": 3900000000,
+                "digest": "sha256:ghi789",
+                "details": {
+                    "format": "gguf",
+                    "family": "llama",
+                    "families": ["llama"],
+                    "parameter_size": "7B",
+                    "quantization_level": "Q4_0"
+                },
+                "modified_at": "2024-01-01T00:00:00Z"
+            }
+        ]
+    }
+
+
+@pytest.fixture
+def mock_ollama_generate_response():
+    """Réponse mockée pour la génération Ollama."""
+    return {
+        "model": "llama3.1:8b",
+        "created_at": "2024-01-01T00:00:00Z",
+        "response": "Ceci est une réponse de test générée par le modèle Ollama. L'analyse financière demandée nécessite une approche méthodique.",
+        "done": True,
+        "context": [123, 456, 789],
+        "total_duration": 1500000000,
+        "load_duration": 300000000,
+        "prompt_eval_count": 25,
+        "prompt_eval_duration": 200000000,
+        "eval_count": 35,
+        "eval_duration": 800000000
+    }
+
+
+@pytest.fixture
+def mock_claude_response():
+    """Réponse mockée pour Claude."""
+    return {
+        "id": "msg_test123",
+        "type": "message",
+        "role": "assistant",
+        "content": [
+            {
+                "type": "text",
+                "text": "Ceci est une réponse de test de Claude. L'analyse financière sera détaillée et précise."
+            }
+        ],
+        "model": "claude-3-sonnet-20240229",
+        "stop_reason": "end_turn",
+        "stop_sequence": None,
+        "usage": {
+            "input_tokens": 25,
+            "output_tokens": 35
         }
     }
 
 
 @pytest.fixture
-def mock_datetime():
-    """DateTime fixe pour les tests."""
-    fixed_time = datetime(2024, 1, 15, 10, 30, 0)
-    with freeze_time(fixed_time):
-        yield fixed_time
-
-
-# ============================================================================
-# FIXTURES DONNÉES FINANCIÈRES
-# ============================================================================
-
-@pytest.fixture
-def sample_stock_data():
-    """Données d'actions échantillon."""
-    return {
-        "symbol": "AAPL",
-        "name": "Apple Inc.",
-        "price": Decimal("150.25"),
-        "change": Decimal("2.50"),
-        "change_percent": Decimal("1.69"),
-        "volume": 45_000_000,
-        "market_cap": 2_500_000_000_000,
-        "pe_ratio": Decimal("25.3"),
-        "dividend_yield": Decimal("0.5"),
-        "52_week_high": Decimal("175.00"),
-        "52_week_low": Decimal("120.00")
-    }
-
-
-@pytest.fixture
-def sample_market_indicators():
-    """Indicateurs de marché échantillon."""
-    return {
-        "rsi": Decimal("65.4"),
-        "macd": Decimal("1.23"),
-        "macd_signal": Decimal("1.15"),
-        "bb_upper": Decimal("155.00"),
-        "bb_middle": Decimal("150.00"),
-        "bb_lower": Decimal("145.00"),
-        "sma_20": Decimal("148.50"),
-        "sma_50": Decimal("145.25"),
-        "volume_sma": 42_000_000
-    }
-
-
-@pytest.fixture
-def sample_news_data():
-    """Données de news échantillon."""
+def sample_model_infos():
+    """Liste d'informations de modèles pour les tests."""
     return [
-        {
-            "title": "Apple Reports Strong Q4 Earnings",
-            "content": "Apple Inc. reported strong quarterly earnings...",
-            "published_at": datetime.now() - timedelta(hours=2),
-            "source": "Financial Times",
-            "sentiment": "positive",
-            "relevance": 0.95
-        },
-        {
-            "title": "Tech Stocks Rally Continues",
-            "content": "Technology stocks continue to show strength...",
-            "published_at": datetime.now() - timedelta(hours=6),
-            "source": "Reuters", 
-            "sentiment": "neutral",
-            "relevance": 0.75
-        }
+        OllamaModelInfo(
+            name="llama3.1:8b",
+            size_bytes=4600000000,
+            digest="sha256:abc123",
+            details={
+                "format": "gguf",
+                "family": "llama",
+                "parameter_size": "8B",
+                "quantization_level": "Q4_0"
+            }
+        ),
+        OllamaModelInfo(
+            name="mistral:7b",
+            size_bytes=3800000000,
+            digest="sha256:def456",
+            details={
+                "format": "gguf",
+                "family": "mistral",
+                "parameter_size": "7B",
+                "quantization_level": "Q4_0"
+            }
+        )
     ]
 
 
-# ============================================================================
-# FIXTURES IA ET PROVIDERS
-# ============================================================================
-
 @pytest.fixture
-def mock_ai_request():
-    """Requête IA mock."""
-    return AIRequest(
-        prompt="Analyze AAPL stock performance",
-        model_type=ModelType.CLAUDE_3_SONNET,
-        temperature=0.3,
-        max_tokens=2000
-    )
-
-
-@pytest.fixture
-def mock_ai_response():
-    """Réponse IA mock."""
-    return AIResponse(
-        request_id=uuid4(),
-        content="Apple stock shows strong fundamentals with positive outlook...",
-        model_used=ModelType.CLAUDE_3_SONNET,
-        tokens_used=250,
-        processing_time=1.5,
-        confidence=ConfidenceLevel.HIGH
-    )
-
-
-@pytest.fixture
-def mock_claude_provider():
-    """Provider Claude mock."""
-    provider = AsyncMock()
-    provider.send_request.return_value = AIResponse(
-        request_id=uuid4(),
-        content="Mock AI analysis response",
-        model_used=ModelType.CLAUDE_3_SONNET,
-        tokens_used=200,
-        processing_time=1.0,
-        confidence=ConfidenceLevel.MEDIUM
-    )
+def mock_ollama_provider(sample_ollama_config, sample_model_infos):
+    """Provider Ollama mocké pour les tests."""
+    provider = AsyncMock(spec=OllamaProvider)
+    provider.config = sample_ollama_config
+    provider.base_url = f"http://{sample_ollama_config.host}:{sample_ollama_config.port}"
+    
+    # Configuration des méthodes mockées
     provider.validate_connection.return_value = True
-    provider.get_available_models.return_value = [
-        ModelType.CLAUDE_3_SONNET,
-        ModelType.CLAUDE_3_HAIKU
-    ]
+    provider.get_available_models_info.return_value = sample_model_infos
+    provider.pull_model.return_value = True
+    provider.generate_response.return_value = "Réponse de test Ollama"
+    
     return provider
 
 
 @pytest.fixture
-def mock_openbb_provider():
-    """Provider OpenBB mock."""
-    provider = AsyncMock()
+def mock_model_discovery_service(mock_ollama_provider):
+    """Service de discovery mocké."""
+    service = AsyncMock(spec=ModelDiscoveryService)
+    service.provider = mock_ollama_provider
     
-    # Mock des données de marché
-    provider.get_stock_data.return_value = {
+    # Modèles disponibles mockés
+    service.get_available_models.return_value = [
+        ModelType.LLAMA3_1_8B,
+        ModelType.MISTRAL_7B,
+        ModelType.CODELLAMA_7B
+    ]
+    
+    # Recommandations mockées
+    service.get_recommended_models_for_task.return_value = [
+        ModelType.LLAMA3_1_8B,
+        ModelType.MISTRAL_7B
+    ]
+    
+    service.pull_model.return_value = True
+    service.refresh_models.return_value = {}
+    
+    return service
+
+
+@pytest.fixture
+def mock_http_session():
+    """Session HTTP mockée pour les tests."""
+    session = AsyncMock()
+    
+    # Configuration des réponses par défaut
+    response = AsyncMock()
+    response.status = 200
+    response.json.return_value = {"status": "ok"}
+    response.text.return_value = "OK"
+    
+    session.get.return_value.__aenter__.return_value = response
+    session.post.return_value.__aenter__.return_value = response
+    session.put.return_value.__aenter__.return_value = response
+    session.delete.return_value.__aenter__.return_value = response
+    
+    return session
+
+
+@pytest.fixture
+def sample_financial_data():
+    """Données financières de test."""
+    return {
         "symbol": "AAPL",
         "price": 150.25,
         "change": 2.50,
-        "volume": 45000000
-    }
-    
-    # Mock des indicateurs techniques
-    provider.get_technical_indicators.return_value = {
-        "rsi": 65.4,
-        "macd": 1.23,
-        "sma_20": 148.50
-    }
-    
-    # Mock des news
-    provider.get_news.return_value = [
-        {
-            "title": "Apple Reports Earnings",
-            "published_at": datetime.now(),
-            "sentiment": "positive"
-        }
-    ]
-    
-    return provider
-
-
-# ============================================================================
-# FIXTURES HTTP ET RÉSEAU
-# ============================================================================
-
-@pytest.fixture
-async def http_client():
-    """Client HTTP async pour les tests."""
-    async with AsyncClient() as client:
-        yield client
-
-
-@pytest.fixture
-def mock_http_responses():
-    """Réponses HTTP mock."""
-    return {
-        "openbb_stock": {
-            "status_code": 200,
-            "json": {
-                "symbol": "AAPL",
-                "price": 150.25,
-                "change": 2.50
-            }
-        },
-        "claude_analysis": {
-            "status_code": 200, 
-            "json": {
-                "choices": [{
-                    "message": {
-                        "content": "Stock analysis response"
-                    }
-                }]
-            }
+        "change_percent": 1.69,
+        "volume": 50000000,
+        "market_cap": 2500000000000,
+        "pe_ratio": 25.5,
+        "dividend_yield": 0.6,
+        "analysis": {
+            "trend": "bullish",
+            "support": 145.00,
+            "resistance": 155.00,
+            "recommendation": "buy"
         }
     }
 
 
-# ============================================================================
-# FIXTURES STRATÉGIES ET DÉCISIONS
-# ============================================================================
-
 @pytest.fixture
-def sample_strategy_config():
-    """Configuration de stratégie échantillon."""
+def sample_prompts():
+    """Prompts de test pour différentes tâches."""
     return {
-        "name": "Test Momentum Strategy",
-        "type": "technical",
-        "risk_tolerance": "medium",
-        "time_horizon": "medium",
-        "rules": [
-            {
-                "name": "RSI Oversold",
-                "conditions": [
-                    {
-                        "indicator": "rsi",
-                        "operator": "<",
-                        "value": 30
-                    }
-                ],
-                "action": "buy",
-                "weight": 0.7
-            }
-        ]
+        "analysis": """
+        Analyse l'action Apple (AAPL) en considérant :
+        1. Performance récente
+        2. Tendances du marché
+        3. Position concurrentielle
+        4. Recommandation d'investissement
+        """,
+        "portfolio": """
+        Optimise ce portefeuille de 50,000€ :
+        - Actions tech: 40%
+        - Obligations: 30%
+        - Cash: 30%
+        Profil: investisseur modéré, horizon 10 ans.
+        """,
+        "coding": """
+        Écris une fonction Python qui calcule :
+        1. Moyenne mobile simple (SMA)
+        2. RSI (Relative Strength Index)
+        3. Bandes de Bollinger
+        """,
+        "summary": """
+        Résume les points clés de l'actualité financière
+        de cette semaine en 5 points maximum.
+        """
     }
 
 
+# Marks personnalisés pour les tests
+def pytest_configure(config):
+    """Configuration des marks personnalisés."""
+    config.addinivalue_line(
+        "markers", "unit: Tests unitaires rapides"
+    )
+    config.addinivalue_line(
+        "markers", "integration: Tests d'intégration"
+    )
+    config.addinivalue_line(
+        "markers", "ollama: Tests spécifiques à Ollama"
+    )
+    config.addinivalue_line(
+        "markers", "claude: Tests spécifiques à Claude"
+    )
+    config.addinivalue_line(
+        "markers", "slow: Tests lents nécessitant plus de temps"
+    )
+    config.addinivalue_line(
+        "markers", "network: Tests nécessitant une connexion réseau"
+    )
+
+
+# Helpers pour les tests
+class TestHelpers:
+    """Méthodes utilitaires pour les tests."""
+    
+    @staticmethod
+    def create_mock_response(status: int = 200, json_data: Dict[str, Any] = None, text: str = None):
+        """Crée une réponse HTTP mockée."""
+        response = AsyncMock()
+        response.status = status
+        
+        if json_data:
+            response.json.return_value = json_data
+        if text:
+            response.text.return_value = text
+            
+        return response
+    
+    @staticmethod
+    def assert_model_info_valid(model_info: OllamaModelInfo):
+        """Valide qu'une info de modèle est correcte."""
+        assert model_info.name
+        assert model_info.size_bytes > 0
+        assert model_info.digest
+        assert isinstance(model_info.details, dict)
+    
+    @staticmethod
+    def assert_ai_response_valid(response: str):
+        """Valide qu'une réponse AI est correcte."""
+        assert isinstance(response, str)
+        assert len(response) > 0
+        assert response.strip() != ""
+
+
 @pytest.fixture
-def sample_portfolio():
-    """Portfolio échantillon."""
-    return {
-        "id": uuid4(),
-        "name": "Test Portfolio",
-        "cash": Decimal("10000.00"),
-        "total_value": Decimal("15000.00"),
-        "positions": [
-            {
-                "symbol": "AAPL",
-                "quantity": 20,
-                "average_cost": Decimal("140.00"),
-                "current_price": Decimal("150.25")
-            }
-        ]
+def test_helpers():
+    """Fixture pour accéder aux helpers de test."""
+    return TestHelpers
+
+
+# Configuration des timeouts pour les tests asyncio
+@pytest.fixture(autouse=True)
+def setup_test_timeout():
+    """Configure un timeout par défaut pour les tests asyncio."""
+    import pytest_asyncio
+    pytest_asyncio.timeout = 30  # 30 secondes par test
+
+
+# Variables d'environnement pour les tests
+@pytest.fixture(autouse=True)
+def setup_test_environment(monkeypatch):
+    """Configure l'environnement pour les tests."""
+    # Variables d'environnement de test
+    test_env = {
+        "OLLAMA_HOST": "localhost",
+        "OLLAMA_PORT": "11434",
+        "OLLAMA_DEFAULT_MODEL": "llama3.1:8b",
+        "OLLAMA_AUTO_PULL": "true",
+        "AI_PREFERRED_PROVIDER": "ollama",
+        "AI_FALLBACK_STRATEGY": "auto",
+        "AI_ENABLE_AUTO_DISCOVERY": "true",
+        "LOG_LEVEL": "DEBUG",
+        "TESTING": "true"
     }
+    
+    for key, value in test_env.items():
+        monkeypatch.setenv(key, value)
 
 
-# ============================================================================
-# FIXTURES CLI
-# ============================================================================
-
-@pytest.fixture
-def cli_runner():
-    """Runner pour tester les commandes CLI."""
-    from click.testing import CliRunner
-    return CliRunner()
-
-
-@pytest.fixture
-def mock_cli_context():
-    """Contexte CLI mock."""
-    return {
-        "config": None,
-        "verbose": False,
-        "debug": False
-    }
-
-
-# ============================================================================
-# FIXTURES EXCEPTIONS ET ERREURS
-# ============================================================================
-
-@pytest.fixture
-def sample_exceptions():
-    """Exceptions échantillon pour tests."""
-    return {
-        "api_error": APIConnectionError(
-            "Failed to connect to OpenBB API",
-            error_code="API_001"
-        ),
-        "validation_error": DataValidationError(
-            "Invalid stock symbol format",
-            error_code="VAL_001"
-        ),
-        "config_error": ConfigurationError(
-            "Missing API key configuration",
-            error_code="CFG_001"
-        )
-    }
-
-
-# ============================================================================
-# HELPER FUNCTIONS
-# ============================================================================
-
-def create_mock_response(status_code: int = 200, json_data: Dict[str, Any] = None):
-    """Crée une réponse HTTP mock."""
-    response = Mock()
-    response.status_code = status_code
-    response.json.return_value = json_data or {}
-    return response
-
-
-def assert_valid_uuid(uuid_string: str):
-    """Vérifie qu'une chaîne est un UUID valide."""
-    from uuid import UUID
-    try:
-        UUID(uuid_string)
-        return True
-    except ValueError:
-        return False
-
-
-# ============================================================================
-# FIXTURES SPÉCIALISÉES PAR MODULE
-# ============================================================================
-
-# Ces fixtures seront importées par les modules spécifiques selon leurs besoins
-# Voir tests/utils/test_fixtures.py pour plus de détails
+# Nettoyage après les tests
+@pytest.fixture(autouse=True)
+def cleanup_after_test():
+    """Nettoyage automatique après chaque test."""
+    yield
+    
+    # Nettoyage des ressources si nécessaire
+    # (connexions, fichiers temporaires, etc.)
+    pass

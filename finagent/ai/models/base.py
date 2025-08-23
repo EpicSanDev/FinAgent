@@ -24,11 +24,52 @@ class BaseAIModel(BaseModel):
 
 
 class ModelType(str, Enum):
-    """Types de modèles Claude disponibles."""
+    """Types de modèles AI disponibles (Claude et Ollama)."""
+    # Modèles Claude via OpenRouter
     CLAUDE_3_SONNET = "claude-3-sonnet-20240229"
-    CLAUDE_3_HAIKU = "claude-3-haiku-20240307" 
+    CLAUDE_3_HAIKU = "claude-3-haiku-20240307"
     CLAUDE_3_OPUS = "claude-3-opus-20240229"
     CLAUDE_3_5_SONNET = "claude-3-5-sonnet-20241022"
+    
+    # Modèles Ollama locaux - Llama famille
+    LLAMA2_7B = "llama2:7b"
+    LLAMA2_13B = "llama2:13b"
+    LLAMA2_70B = "llama2:70b"
+    LLAMA3_8B = "llama3:8b"
+    LLAMA3_70B = "llama3:70b"
+    LLAMA3_1_8B = "llama3.1:8b"
+    LLAMA3_1_70B = "llama3.1:70b"
+    
+    # Modèles Ollama - Mistral famille
+    MISTRAL_7B = "mistral:7b"
+    MISTRAL_INSTRUCT = "mistral:7b-instruct"
+    MIXTRAL_8X7B = "mixtral:8x7b"
+    MIXTRAL_8X22B = "mixtral:8x22b"
+    
+    # Modèles Ollama - Code spécialisés
+    CODELLAMA_7B = "codellama:7b"
+    CODELLAMA_13B = "codellama:13b"
+    CODELLAMA_34B = "codellama:34b"
+    CODELLAMA_INSTRUCT = "codellama:7b-instruct"
+    
+    # Modèles Ollama - Autres
+    GEMMA_2B = "gemma:2b"
+    GEMMA_7B = "gemma:7b"
+    PHI3_MINI = "phi3:mini"
+    PHI3_MEDIUM = "phi3:medium"
+    QWEN2_7B = "qwen2:7b"
+    QWEN2_72B = "qwen2:72b"
+    
+    # Modèles spécialisés finance (customs)
+    FINLLAMA_7B = "finllama:7b"
+    FINMISTRAL_7B = "finmistral:7b"
+
+
+class ProviderType(str, Enum):
+    """Types de providers AI disponibles."""
+    CLAUDE = "claude"
+    OLLAMA = "ollama"
+    OPENAI = "openai"
 
 
 class ConfidenceLevel(str, Enum):
@@ -91,6 +132,83 @@ class AIProvider(ABC):
     def get_available_models(self) -> List[ModelType]:
         """Retourne la liste des modèles disponibles."""
         pass
+    
+    @abstractmethod
+    def get_provider_type(self) -> ProviderType:
+        """Retourne le type du provider."""
+        pass
+
+
+class ModelUtils:
+    """Utilitaires pour la gestion des modèles."""
+    
+    @staticmethod
+    def get_provider_for_model(model: ModelType) -> ProviderType:
+        """Détermine le provider approprié pour un modèle donné."""
+        if model.value.startswith(("claude-", "anthropic/")):
+            return ProviderType.CLAUDE
+        elif model.value.startswith(("gpt-", "openai/")):
+            return ProviderType.OPENAI
+        else:
+            # Tous les autres modèles sont considérés comme Ollama
+            return ProviderType.OLLAMA
+    
+    @staticmethod
+    def is_ollama_model(model: ModelType) -> bool:
+        """Vérifie si un modèle est un modèle Ollama."""
+        return ModelUtils.get_provider_for_model(model) == ProviderType.OLLAMA
+    
+    @staticmethod
+    def is_claude_model(model: ModelType) -> bool:
+        """Vérifie si un modèle est un modèle Claude."""
+        return ModelUtils.get_provider_for_model(model) == ProviderType.CLAUDE
+    
+    @staticmethod
+    def get_model_size_category(model: ModelType) -> str:
+        """Catégorise la taille du modèle."""
+        model_str = model.value.lower()
+        if any(size in model_str for size in ["2b", "mini"]):
+            return "small"
+        elif any(size in model_str for size in ["7b", "8b"]):
+            return "medium"
+        elif any(size in model_str for size in ["13b", "22b"]):
+            return "large"
+        elif any(size in model_str for size in ["34b", "70b", "72b"]):
+            return "xlarge"
+        else:
+            return "unknown"
+    
+    @staticmethod
+    def get_recommended_models_for_task(task_type: str) -> List[ModelType]:
+        """Recommande des modèles selon le type de tâche."""
+        recommendations = {
+            "analysis": [
+                ModelType.LLAMA3_1_8B,
+                ModelType.MISTRAL_7B,
+                ModelType.CLAUDE_3_SONNET
+            ],
+            "decision": [
+                ModelType.LLAMA3_1_70B,
+                ModelType.MIXTRAL_8X7B,
+                ModelType.CLAUDE_3_5_SONNET
+            ],
+            "sentiment": [
+                ModelType.GEMMA_7B,
+                ModelType.MISTRAL_INSTRUCT,
+                ModelType.CLAUDE_3_HAIKU
+            ],
+            "strategy": [
+                ModelType.CODELLAMA_13B,
+                ModelType.LLAMA3_1_70B,
+                ModelType.CLAUDE_3_OPUS
+            ],
+            "code": [
+                ModelType.CODELLAMA_INSTRUCT,
+                ModelType.CODELLAMA_34B,
+                ModelType.CLAUDE_3_5_SONNET
+            ]
+        }
+        return recommendations.get(task_type, [ModelType.LLAMA3_1_8B])
 
 
 class TokenUsage(BaseAIModel):

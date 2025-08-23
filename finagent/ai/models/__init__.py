@@ -6,10 +6,12 @@ Modèles de données pour l'intégration IA.
 from .base import (
     BaseAIModel,
     ModelType,
+    ProviderType,
     ConfidenceLevel,
     AIRequest,
     AIResponse,
     AIProvider,
+    ModelUtils,
     TokenUsage,
     RateLimitInfo,
     AIError,
