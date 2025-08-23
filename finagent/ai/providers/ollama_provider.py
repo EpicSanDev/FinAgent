@@ -4,6 +4,7 @@ Provider Ollama pour l'intégration IA locale.
 
 import asyncio
 import json
+import logging
 import time
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
@@ -255,7 +256,7 @@ class OllamaProvider(AIProvider):
         stop=stop_after_attempt(3),
         wait=wait_exponential(multiplier=1, min=2, max=10),
         retry=retry_if_exception_type((httpx.TimeoutException, httpx.ConnectError)),
-        before_sleep=before_sleep_log(logger, structlog.INFO)
+        before_sleep=before_sleep_log(logger, logging.INFO)
     )
     async def send_request(self, request: AIRequest) -> AIResponse:
         """Envoie une requête à Ollama et retourne la réponse."""

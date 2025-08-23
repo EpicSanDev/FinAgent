@@ -54,7 +54,7 @@ class ModelDiscoveryService:
         self,
         ollama_provider: Optional[OllamaProvider] = None,
         auto_refresh_interval: int = 300,  # 5 minutes
-        auto_pull_popular: bool = True
+        auto_pull_popular: bool = False
     ):
         self.ollama_provider = ollama_provider
         self.auto_refresh_interval = auto_refresh_interval

@@ -17,7 +17,6 @@ from .model_discovery_service import (
 
 # Fonctions utilitaires pour créer des services avec les nouveaux providers
 from typing import Optional
-from ..factory import get_ai_factory, create_ai_provider
 from ..models.base import ProviderType, ModelType
 from ..prompts.prompt_manager import PromptManager
 
@@ -38,6 +37,9 @@ async def create_analysis_service(
     Returns:
         Service d'analyse configuré
     """
+    # Import différé pour éviter les imports circulaires
+    from ..factory import create_ai_provider
+    
     if provider_type:
         provider = await create_ai_provider(provider_type)
     else:

@@ -118,6 +118,7 @@ class ClaudeProvider(AIProvider):
         ModelType.CLAUDE_3_HAIKU: "anthropic/claude-3-haiku",
         ModelType.CLAUDE_3_OPUS: "anthropic/claude-3-opus",
         ModelType.CLAUDE_3_5_SONNET: "anthropic/claude-3.5-sonnet",
+        ModelType.CLAUDE_3_5_HAIKU: "anthropic/claude-3.5-haiku",
     }
     
     # Coûts approximatifs par 1K tokens (input/output)
@@ -125,6 +126,7 @@ class ClaudeProvider(AIProvider):
         ModelType.CLAUDE_3_HAIKU: (0.00025, 0.00125),
         ModelType.CLAUDE_3_SONNET: (0.003, 0.015),
         ModelType.CLAUDE_3_5_SONNET: (0.003, 0.015),
+        ModelType.CLAUDE_3_5_HAIKU: (0.0005, 0.0025),
         ModelType.CLAUDE_3_OPUS: (0.015, 0.075),
     }
     

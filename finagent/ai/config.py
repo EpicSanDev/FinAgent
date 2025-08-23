@@ -10,6 +10,11 @@ from enum import Enum
 from .models.base import ModelType, ProviderType
 
 
+class AIConfigError(Exception):
+    """Exception pour les erreurs de configuration AI."""
+    pass
+
+
 class FallbackStrategy(str, Enum):
     """Stratégies de fallback entre providers."""
     NONE = "none"  # Pas de fallback
@@ -309,3 +314,54 @@ def set_ai_config(config: AIConfig):
     """Définit l'instance globale de configuration AI."""
     global _ai_config
     _ai_config = config
+
+
+# Variables globales pour la compatibilité avec l'ancienne API
+_legacy_ai_config: Optional['LegacyAIConfig'] = None
+_ai_system_initialized: bool = False
+
+
+class LegacyAIConfig:
+    """Configuration AI legacy pour la rétrocompatibilité."""
+    
+    def __init__(self):
+        self._initialized = False
+        self.analysis_service = None
+        self.decision_service = None
+        self.sentiment_service = None
+        self.strategy_service = None
+        self.memory_manager = None
+        self.provider = None
+    
+    def initialize(self):
+        """Initialise la configuration legacy."""
+        self._initialized = True
+
+
+def get_legacy_ai_config() -> Optional[LegacyAIConfig]:
+    """Retourne l'instance legacy de configuration AI."""
+    global _legacy_ai_config
+    if _legacy_ai_config is None:
+        _legacy_ai_config = LegacyAIConfig()
+    return _legacy_ai_config
+
+
+def initialize_ai_config() -> LegacyAIConfig:
+    """Initialise la configuration AI legacy."""
+    config = get_legacy_ai_config()
+    config.initialize()
+    return config
+
+
+def initialize_ai_system():
+    """Initialise le système AI."""
+    global _ai_system_initialized
+    initialize_ai_config()
+    _ai_system_initialized = True
+
+
+def shutdown_ai_system():
+    """Arrête le système AI."""
+    global _ai_system_initialized, _legacy_ai_config
+    _ai_system_initialized = False
+    _legacy_ai_config = None
