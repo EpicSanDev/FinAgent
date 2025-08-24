@@ -65,7 +65,7 @@ apis:
     
   # Configuration OpenBB
   openbb:
-    base_url: "https://my.openbb.co/api/v1"
+    base_url: "https://api.openbb.co/v1"
     timeout: 30
     
   # Configuration générale des APIs

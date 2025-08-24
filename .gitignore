@@ -151,7 +151,7 @@ cython_debug/
 # =============================================================================
 
 # Données locales (ne pas committer)
-data/
+/data/
 !data/.gitkeep
 
 # Fichiers de configuration avec clés

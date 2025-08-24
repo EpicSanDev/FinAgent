@@ -33,7 +33,8 @@ class APISettings(BaseSettings):
     openrouter_model: str = Field(default="anthropic/claude-3-sonnet-20240229")
     
     openbb_pat: Optional[str] = Field(default=None)
-    openbb_base_url: str = Field(default="https://my.openbb.co/api/v1")
+    # API OpenBB v1 base URL
+    openbb_base_url: str = Field(default="https://api.openbb.co/v1")
     
     api_timeout: int = Field(default=30)
     max_retries: int = Field(default=3)
