@@ -14,8 +14,34 @@ from typing import Any, Dict, List, Optional
 
 import os
 import structlog
-import yfinance as yf
+import sys
 from httpx import AsyncClient
+
+# Patch pour éviter l'importation de websockets.asyncio dans yfinance
+def patch_yfinance_websockets():
+    """Patch yfinance pour éviter l'erreur websockets.asyncio."""
+    import types
+    
+    # Créer un module mock pour websockets.asyncio
+    mock_module = types.ModuleType('websockets.asyncio')
+    mock_client = types.ModuleType('websockets.asyncio.client')
+    
+    # Créer une fonction mock pour connect
+    def mock_connect(*args, **kwargs):
+        raise NotImplementedError("WebSocket streaming non disponible - websockets.asyncio non installé")
+    
+    mock_client.connect = mock_connect
+    mock_module.client = mock_client
+    
+    # Injecter le module mock dans sys.modules
+    sys.modules['websockets.asyncio'] = mock_module
+    sys.modules['websockets.asyncio.client'] = mock_client
+
+# Appliquer le patch avant d'importer yfinance
+patch_yfinance_websockets()
+
+# Maintenant importer yfinance devrait fonctionner
+import yfinance as yf
 
 logger = structlog.get_logger(__name__)
 
