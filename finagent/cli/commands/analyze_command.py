@@ -23,6 +23,7 @@ from ..utils import (
 # Imports des services
 from ...data.providers.openbb_provider import OpenBBProvider
 from ...ai import AIProviderFactory, get_ai_config
+from ...ai.models.base import ProviderType
 
 console = Console()
 
@@ -303,13 +304,13 @@ async def _perform_stock_analysis(symbol: str, timeframe: str, indicators: List[
         
         try:
             # Récupération de données réelles via OpenBB
-            quote_data = await openbb_provider.get_quote(symbol)
-            current_price = quote_data.price if quote_data else 150.00
-            historical_data = await openbb_provider.get_historical_data(symbol, period=f"{period}d")
+            current_price_data = await openbb_provider.get_current_price(symbol)
+            current_price = current_price_data.get("price", 150.00) if current_price_data else 150.00
+            historical_data = await openbb_provider.get_historical_data(symbol)
             company_info = await openbb_provider.get_company_info(symbol)
             
             market_data = {
-                "current_price": current_price,
+                "current_price": current_price_data,
                 "historical": historical_data,
                 "company_info": company_info
             }
@@ -368,7 +369,7 @@ async def _perform_stock_analysis(symbol: str, timeframe: str, indicators: List[
             4. Risques identifiés
             """
             
-            ai_provider = await ai_factory.get_provider_for_task("analysis")
+            ai_provider = await ai_factory.get_provider(ProviderType.CLAUDE)
             if ai_provider:
                 ai_analysis = await ai_provider.generate_completion(analysis_prompt)
             else:
